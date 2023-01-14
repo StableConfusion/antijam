@@ -37,10 +37,8 @@ class MainScreen:
     def render_map(self):
         for y in range(self.map_height):
             for x in range(self.map_width):
-                if self.town_map[y][x] == "grass":
-                    self.screen.blit(self.resource_manager.grass_tile, (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
-                else:
-                    self.screen.blit(self.resource_manager.soil_tile, (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
+                self.screen.blit(self.resource_manager.grass_tile, (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
+                if self.town_map[y][x] != "grass":
                     self.screen.blit(rotate_road(self.town_map[y][x], self.resource_manager),
                                      (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
         if self.vehicle_state is not None:
