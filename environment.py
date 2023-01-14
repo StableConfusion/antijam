@@ -73,9 +73,16 @@ class GridWorldEnv:
             (2, m-3): Direction.DOWN
         }
 
-    def step(self):
+    def step(self) -> int:
+        """
+        Makes simulation and returns how many vehicles were moved
+        :return: reward
+        """
+        vehicles_moved = 0
         for vehicle in self.vehicles:
-            vehicle.move()
+            if vehicle.move():
+                vehicles_moved += 1
+        return vehicles_moved
 
     # def render(self):
     #     temp = deepcopy(self.map)
@@ -130,7 +137,7 @@ class Vehicle:
         # Other vehicles
         for vehicle in self.world.vehicles:
             if vehicle.i == next_i and vehicle.j == next_j:
-                return
+                return False
 
         # On the junction
         is_in_junction = False
@@ -146,10 +153,10 @@ class Vehicle:
 
                 if junction.state == 0:
                     if self.direction not in [Direction.LEFT, Direction.RIGHT]:
-                        return
+                        return False
                 else:
                     if self.direction not in [Direction.DOWN, Direction.UP]:
-                        return
+                        return False
 
                 if self.temp_direction is None:
                     self.temp_direction = junction.get_random_turn(self.direction)
@@ -158,6 +165,7 @@ class Vehicle:
         assert self.world.map[next_i, next_j] >= 1
 
         self.i, self.j = next_i, next_j
+        return True
 
     def find_direction(self):
         for i1, j1 in self.world.corner_roads:
@@ -170,5 +178,6 @@ class Vehicle:
 
 if __name__ == '__main__':
     env = GridWorldEnv()
-    env.step()
+    for i in range(100):
+        print(env.step())
 
