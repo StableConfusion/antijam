@@ -35,7 +35,9 @@ if __name__ == "__main__":
             },
         },
         callbacks=[WandbLoggerCallback(project='antijam')],
-        local_dir='./ray_results'
+        local_dir='./ray_results',
+        checkpoint_at_end=True,
+        checkpoint_freq=5,
     )
 
     ray.shutdown()
