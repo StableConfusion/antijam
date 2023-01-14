@@ -14,19 +14,20 @@ class MainScreen:
     def __init__(self, town_map: np.ndarray):
         pygame.init()
         pygame.display.set_caption('BITEhack Anti Jam')
+        self.font = pygame.font.Font('freesansbold.ttf', 48)
 
         set_tile_size(town_map.shape[0])
         set_car_size()
 
-        screen_height = display_settings.DEFAULT_SCREEN_SIZE
-        screen_width = display_settings.DEFAULT_SCREEN_SIZE
+        screen_height = display_settings.DEFAULT_SCREEN_SIZE + 2 * display_settings.TILE_SIZE
+        screen_width = display_settings.DEFAULT_SCREEN_SIZE + display_settings.TILE_SIZE
 
         self.parse_town_map(town_map)
         self.map_height, self.map_width = town_map.shape
         self.width = screen_width
         self.height = screen_height
 
-        self.screen: pygame.Surface = pygame.display.set_mode((self.width * 2, self.height))
+        self.screen: pygame.Surface = pygame.display.set_mode((self.width * 2 + display_settings.TILE_SIZE, self.height))
         self.resource_manager = ResourceManager()
 
     def parse_town_map(self, town_map: np.ndarray):
@@ -71,12 +72,14 @@ class Town:
         self.screen = screen
         self.screen_offset = 0
         if has_offset:
-            self.screen_offset = display_settings.DEFAULT_SCREEN_SIZE
+            self.screen_offset = display_settings.DEFAULT_SCREEN_SIZE + display_settings.TILE_SIZE
 
         self.vehicle_state: Optional[List] = None
         self.junction_state: Optional[List] = None
         self.vehicle_state_tmp: Optional[List] = None
         self.junction_state_tmp: Optional[List] = None
+        self.mean_reward = 0.0
+        self.mean_reward_tmp = 0.0
         self.should_update = False
 
     def render_map(self):
@@ -116,17 +119,21 @@ class Town:
                 self.screen.screen.blit(rotate_resize_car(self.screen.resource_manager.car_tiles[1], vehicle.direction),
                                  (x * display_settings.TILE_SIZE + self.screen_offset, y * display_settings.TILE_SIZE))
 
+        self.screen.screen.blit(self.screen.font.render("Mean reward {:.2f}".format(self.mean_reward), False, (255, 255, 255)), (250 + self.screen_offset, 50))
+
         pygame.display.flip()
 
-    def step(self, vehicle_state: List, junction_state: List):
+    def step(self, vehicle_state: List, junction_state: List, mean_reward: float):
         self.vehicle_state_tmp = vehicle_state
         self.junction_state_tmp = junction_state
+        self.mean_reward_tmp = mean_reward
         self.should_update = True
 
     def update_state(self):
         if self.should_update:
             self.vehicle_state = self.vehicle_state_tmp
             self.junction_state = self.junction_state_tmp
+            self.mean_reward = self.mean_reward_tmp
             self.should_update = False
 
 

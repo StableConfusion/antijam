@@ -12,16 +12,16 @@ from utils import Direction, opposite
 
 
 class GridWorldEnv:
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode=None, map_size=50, num_of_vehicles=200):
         # self.map, self.junctions = self.generate_map(16, 16, 1, 1)
-        self.map, self.junctions = self.generate_map(100, 100, 4, 4)
+        self.map, self.junctions = self.generate_map(map_size, map_size, 4, 4)
 
         n, m = self.map.shape
         self.day = 0
 
         # self.map_obs = self.map[self.map >= 1]
 
-        self.vehicles = self.generate_vehicles(700)
+        self.vehicles = self.generate_vehicles(num_of_vehicles)
         # self.vehicles = [
         #     Vehicle(self, 1, 10, Direction.LEFT),
         # ]
