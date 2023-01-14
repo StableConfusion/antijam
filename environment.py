@@ -22,20 +22,7 @@ class Direction(Enum):
 
 class GridWorldEnv:
     def __init__(self, render_mode=None):
-        self.map = np.array([
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 1, 1, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ])
+        self.map, self.junctions = self.generate_map(50, 50, 5, 5)
 
         n, m = self.map.shape
 
@@ -82,6 +69,83 @@ class GridWorldEnv:
         plt.matshow(temp)
         plt.show()
 
+    @staticmethod
+    def generate_map(i: int, j: int, hor_jun: int, ver_jun: int) -> np.array:
+        new_map = np.zeros((i, j))
+        junctions = []
+
+        # Edge roads
+        new_map[1:3, 1:-1] = 1
+        new_map[-3:-1, 1:-1] = 1
+        new_map[1:-1, 1:3] = 1
+        new_map[1:-1, -3:-1] = 1
+
+        hor_jun_loc = list(np.linspace(1, i - 2, hor_jun + 2, dtype=int)[1:-1])
+        ver_jun_loc = list(np.linspace(1, j - 2, ver_jun + 2, dtype=int)[1:-1])
+
+        for hor_loc in hor_jun_loc:
+            for ver_loc in ver_jun_loc:
+                junctions.append(
+                    Junction(hor_loc, ver_loc, [(1, Direction.LEFT), (1, Direction.RIGHT), (1, Direction.DOWN)]))
+
+        # 3 prio roads
+        new_map[hor_jun_loc[len(hor_jun_loc) // 2] - 1:hor_jun_loc[len(hor_jun_loc) // 2] + 1, 1:-1] = 3
+        new_map[1:-1, ver_jun_loc[len(ver_jun_loc) // 2] - 1:ver_jun_loc[len(ver_jun_loc) // 2] + 1] = 3
+
+        # 2-prio roads
+        new_map[hor_jun_loc[len(hor_jun_loc) // 4] - 1:hor_jun_loc[len(hor_jun_loc) // 4] + 1, 1:-1] = 2
+        new_map[hor_jun_loc[3 * len(hor_jun_loc) // 4] - 1:hor_jun_loc[3 * len(hor_jun_loc) // 4] + 1, 1:-1] = 2
+        new_map[1:-1, ver_jun_loc[len(ver_jun_loc) // 4] - 1:ver_jun_loc[len(ver_jun_loc) // 4] + 1] = 2
+        new_map[1:-1, ver_jun_loc[3 * len(ver_jun_loc) // 4] - 1:ver_jun_loc[3 * len(ver_jun_loc) // 4] + 1] = 2
+
+        print(hor_jun_loc)
+        print(ver_jun_loc)
+        # 1-prio roads
+        for hor_loc in hor_jun_loc:
+            if hor_loc not in [hor_jun_loc[len(hor_jun_loc) // 2], hor_jun_loc[len(hor_jun_loc) // 4],
+                               hor_jun_loc[3 * len(hor_jun_loc) // 4]]:
+                new_map[hor_loc - 1:hor_loc + 1, 1:-1] = 1
+        for ver_loc in ver_jun_loc:
+            if ver_loc not in [ver_jun_loc[len(ver_jun_loc) // 2], ver_jun_loc[len(ver_jun_loc) // 4],
+                               ver_jun_loc[3 * len(ver_jun_loc) // 4]]:
+                new_map[1:-1, ver_loc - 1:ver_loc + 1] = 1
+
+
+        hor_jun_loc = list(np.linspace(1, i - 2, hor_jun + 2, dtype=int)[1:-1])
+        ver_jun_loc = list(np.linspace(1, j - 2, ver_jun + 2, dtype=int)[1:-1])
+
+        for hor_loc in hor_jun_loc:
+            for ver_loc in ver_jun_loc:
+                up_prio = -1
+                down_prio = -1
+                left_prio = -1
+                right_prio = -1
+                if not hor_loc == 1:
+                    up_prio = new_map[hor_loc - 1, ver_loc]
+                if not hor_loc == i - 2:
+                    down_prio = new_map[hor_loc + 2, ver_loc]
+                if not ver_loc == 1:
+                    left_prio = new_map[hor_loc, ver_loc - 1]
+                if not ver_loc == j - 2:
+                    right_prio = new_map[hor_loc, ver_loc + 2]
+
+                negative = [up_prio, down_prio, left_prio, right_prio].count(-1)
+                if negative == 2:
+                    continue
+
+                prios = []
+                if up_prio != -1:
+                    prios.append((up_prio, Direction.UP))
+                if down_prio != -1:
+                    prios.append((down_prio, Direction.DOWN))
+                if left_prio != -1:
+                    prios.append((left_prio, Direction.LEFT))
+                if right_prio != -1:
+                    prios.append((right_prio, Direction.RIGHT))
+                junctions.append(Junction(hor_loc, ver_loc, prios))
+
+        return new_map, junctions
+
 
 class Junction:
     def __init__(self, top_i, top_j, valid_turns, state=0):
@@ -115,12 +179,12 @@ class Vehicle:
 
         if self.temp_direction:
             if self.direction.is_left_turn(self.temp_direction):
-                direction = direction[0] + self.temp_direction.value[0], direction[1] + self.temp_direction.value[1]
+                direction = direction.value[0] + self.temp_direction.value[0], direction[1] + self.temp_direction.value[1]
             else:
                 direction = self.temp_direction.value
                 self.direction = self.temp_direction
             self.temp_direction = None
-        next_i, next_j = self.i + direction[0], self.j + direction[1]
+        next_i, next_j = self.i + direction.value[0], self.j + direction.value[1]
 
         # Other vehicles
         for vehicle in self.world.vehicles:
