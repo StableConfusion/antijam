@@ -4,6 +4,7 @@ import pygame
 from environment import GridWorldEnv
 from gui.main_screen import MainScreen, Town
 from random_agent import RandomAgent
+from trained_agent import TrainedAgent
 
 
 class ReplayBuffer:
@@ -21,8 +22,8 @@ class ReplayBuffer:
 
 
 if __name__ == '__main__':
-    env_1 = GridWorldEnv(map_size=42, num_of_vehicles=100)
-    env_2 = GridWorldEnv(map_size=42, num_of_vehicles=100)
+    env_1 = GridWorldEnv()
+    env_2 = GridWorldEnv()
 
     # env.animate(500)
     ms = MainScreen(env_1.map)
@@ -32,6 +33,7 @@ if __name__ == '__main__':
 
     agent_1 = RandomAgent()
     agent_2 = RandomAgent()
+    # agent_2 = TrainedAgent('ray_results/PPO/PPO_antijam_0db8c_00000_0_2023-01-14_22-18-56/checkpoint_000005')
 
     buffer_size = 100
     r_buffer_1 = ReplayBuffer(buffer_size)
