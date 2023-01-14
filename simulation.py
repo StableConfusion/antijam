@@ -11,7 +11,7 @@ if __name__ == '__main__':
     ms = MainScreen(env.map)
     clock = pygame.time.Clock()
 
-    max_step = 10
+    max_step = 500
     current_step = 0
     running = True
 

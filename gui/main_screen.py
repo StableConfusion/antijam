@@ -58,34 +58,18 @@ class MainScreen:
                 self.screen.blit(self.resource_manager.road_1_tiles[4],
                                  (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
 
+                offset = np.ceil(display_settings.TILE_SIZE * 0.05)
+                line_width = np.ceil(display_settings.TILE_SIZE * 0.25)
+
                 # state: 0 - horizontal, 1 - vertical
                 if junction.state == 0:
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 15, 114, 4))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 40, 114, 4))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 66, 114, 4))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 91, 114, 4))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 114, 114, 4))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + offset,
+                                                 np.ceil((y + 0.75) * display_settings.TILE_SIZE), 2 * (display_settings.TILE_SIZE - offset), line_width))
                 else:
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 15,
-                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 40,
-                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 66,
-                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 91,
-                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + 114,
-                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
+                                     pygame.Rect(np.ceil((x + 0.75) * display_settings.TILE_SIZE),
+                                                 y * display_settings.TILE_SIZE + offset, line_width, 2 * (display_settings.TILE_SIZE - offset)))
 
         pygame.display.flip()
 
