@@ -1,5 +1,4 @@
-import gym
-from gym import spaces
+from __future__ import annotations
 import numpy as np
 from copy import deepcopy
 import matplotlib.pyplot as plt
@@ -11,6 +10,14 @@ class Direction(Enum):
     DOWN = (1, 0)
     LEFT = (0, -1)
     UP = (-1, 0)
+
+    def is_left_turn(self, other: Direction):
+        return [self, other] in [
+            [Direction.UP, Direction.LEFT],
+            [Direction.LEFT, Direction.DOWN],
+            [Direction.DOWN, Direction.RIGHT],
+            [Direction.RIGHT, Direction.UP]
+        ]
 
 
 class GridWorldEnv:
@@ -35,8 +42,8 @@ class GridWorldEnv:
         self.map_obs = self.map[self.map >= 1]
 
         self.vehicles = [
-            Vehicle(self, 1, 1, Direction.DOWN),
-            Vehicle(self, 5, 1, Direction.DOWN),
+            Vehicle(self, 10, 5, Direction.RIGHT),
+            Vehicle(self, 10, 7, Direction.RIGHT),
         ]
 
         # Top left corner of junction
@@ -58,7 +65,7 @@ class GridWorldEnv:
         }
 
         self.render()
-        for i in range(20):
+        for i in range(10):
             self.step()
             self.render()
 
@@ -90,20 +97,30 @@ class Junction:
     def get_random_turn(self, from_direction):
         valid_turns = [turn for turn in self.valid_turns if turn[1] != from_direction]
         total = sum([turn[0] for turn in valid_turns])
-        return np.random.choice(valid_turns, p=[turn[0]/total for turn in valid_turns])
+        return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0]/total for turn in valid_turns])
 
 
 class Vehicle:
     def __init__(self, world: GridWorldEnv, i: int, j: int, start_direction: Direction) -> None:
+        self.world = world
         self.i = i
         self.j = j
-        self.world = world
 
         self.direction = start_direction
+        self.temp_direction = None
 
     def move(self):
         self.find_direction()
-        next_i, next_j = self.i + self.direction.value[0], self.j + self.direction.value[1]
+        direction = self.direction
+
+        if self.temp_direction:
+            if self.direction.is_left_turn(self.temp_direction):
+                direction = direction[0] + self.temp_direction.value[0], direction[1] + self.temp_direction.value[1]
+            else:
+                direction = self.temp_direction.value
+                self.direction = self.temp_direction
+            self.temp_direction = None
+        next_i, next_j = self.i + direction[0], self.j + direction[1]
 
         # Other vehicles
         for vehicle in self.world.vehicles:
@@ -118,17 +135,21 @@ class Vehicle:
         # Want to entry junctions
         for junction in self.world.junctions:
             if not junction.is_in_junction(next_i, next_j): continue
+
             if junction.state == 0:
-                if self.direction not in [Direction.LEFT, Direction.RIGHT]:
+                if direction not in [Direction.LEFT, Direction.RIGHT]:
                     return
             else:
-                if self.direction not in [Direction.DOWN, Direction.UP]:
+                if direction not in [Direction.DOWN, Direction.UP]:
                     return
-            self.direction = junction.get_random_turn(self.direction)
+
+            if self.temp_direction is None:
+                self.temp_direction = junction.get_random_turn(direction)
 
         # Road
-        if self.world.map[next_i, next_j] == 1:
-            self.i, self.j = next_i, next_j
+        assert self.world.map[next_i, next_j] == 1
+
+        self.i, self.j = next_i, next_j
 
     def find_direction(self):
         for i1, j1 in self.world.corner_roads:
