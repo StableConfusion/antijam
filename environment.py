@@ -3,7 +3,6 @@ import numpy as np
 from copy import deepcopy
 import matplotlib.pyplot as plt
 from enum import Enum
-from gui.main_screen import MainScreen
 
 from matplotlib import animation
 from matplotlib.animation import FuncAnimation
@@ -242,18 +241,4 @@ class Vehicle:
     def __repr__(self):
         return f"Vehicle({self.i}, {self.j}, {self.direction})"
 
-
-if __name__ == '__main__':
-    env = GridWorldEnv()
-
-    # env.animate(500)
-    ms = MainScreen(env.map)
-
-    for i in range(3):
-        env.step()
-        # env.render()
-        ms.step(env.vehicles, env.junctions)
-        if i % 10 == 9:
-            env.change_random_lights()
-    env.render()
 
