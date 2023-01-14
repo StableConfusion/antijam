@@ -4,6 +4,9 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 from enum import Enum
 
+from matplotlib import animation
+from matplotlib.animation import FuncAnimation
+
 
 class Direction(Enum):
     RIGHT = (0, 1)
@@ -45,13 +48,17 @@ class GridWorldEnv:
         ])
 
         n, m = self.map.shape
+        self.day = 0
 
         self.map_obs = self.map[self.map >= 1]
 
         self.vehicles = [
             Vehicle(self, 10, 5, Direction.RIGHT),
+            Vehicle(self, 9, 15, Direction.LEFT),
             Vehicle(self, 1, 14, Direction.LEFT),
             Vehicle(self, 10, 7, Direction.RIGHT),
+            Vehicle(self, 4, 8, Direction.DOWN),
+            Vehicle(self, 4, 9, Direction.UP),
         ]
 
         # Top left corner of junction
@@ -78,20 +85,51 @@ class GridWorldEnv:
         Makes simulation and returns how many vehicles were moved
         :return: reward
         """
+        self.day += 1
         vehicles_moved = 0
         for vehicle in self.vehicles:
             if vehicle.move():
                 vehicles_moved += 1
         return vehicles_moved
 
-    # def render(self):
-    #     temp = deepcopy(self.map)
+    def change_random_lights(self):
+        for junction in self.junctions:
+            junction.state = np.random.randint(0, 2)
 
-    #     for vehicle in self.vehicles:
-    #         temp[vehicle.i, vehicle.j] = 3
+    def render(self):
+        temp = deepcopy(self.map)
 
-    #     plt.matshow(temp)
-    #     plt.show()
+        for vehicle in self.vehicles:
+            temp[vehicle.i, vehicle.j] = 5
+
+        plt.matshow(temp)
+        plt.show()
+
+    def render_junctions(self, map_to_edit):
+        for junction in self.junctions:
+            map_to_edit[junction.i:junction.i+2, junction.j:junction.j+2] = 3 + junction.state
+
+    def animate(self, n=1000):
+        fig, ax = plt.subplots()
+
+        ims = []
+        for i in range(n):
+            self.step()
+            temp = deepcopy(self.map)
+            self.render_junctions(temp)
+            for vehicle in self.vehicles:
+                temp[vehicle.i, vehicle.j] = 5
+            im = ax.imshow(temp, animated=True)
+            if i == 0:
+                ax.imshow(temp)  # show an initial one first
+            if self.day % 10 == 0:
+                self.change_random_lights()
+            ims.append([im])
+
+        ani = animation.ArtistAnimation(fig, ims, interval=200, blit=True,
+                                        repeat_delay=1000)
+
+        plt.show()
 
 
 class Junction:
@@ -178,6 +216,8 @@ class Vehicle:
 
 if __name__ == '__main__':
     env = GridWorldEnv()
-    for i in range(100):
-        print(env.step())
+    # for i in range(10):
+    #     print(env.step())
+    #     env.render()
+    env.animate(300)
 
