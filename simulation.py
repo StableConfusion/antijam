@@ -1,15 +1,22 @@
 import pygame
 
 from environment import GridWorldEnv
-from gui.main_screen import MainScreen
+from gui.main_screen import MainScreen, Town
+from random_agent import RandomAgent
 
 
 if __name__ == '__main__':
-    env = GridWorldEnv()
+    env_1 = GridWorldEnv()
+    env_2 = GridWorldEnv()
 
     # env.animate(500)
-    ms = MainScreen(env.map)
+    ms = MainScreen(env_1.map)
+    town_1 = Town(ms, False)
+    town_2 = Town(ms, True)
     clock = pygame.time.Clock()
+
+    agent_1 = RandomAgent()
+    agent_2 = RandomAgent()
 
     max_step = 500
     current_step = 0
@@ -24,14 +31,24 @@ if __name__ == '__main__':
 
         if current_step <= max_step:
 
-            env.step()
-            ms.step(env.vehicles, env.junctions)
-            ms.update_state()
-            ms.render_map()
+            actions_1 = agent_1.compute_actions(env_1)
+            actions_2 = agent_2.compute_actions(env_2)
 
-            if current_step % 10 == 9:
-                env.change_random_lights()
+            for i in range(len(env_1.junctions)):
+                env_1.junctions[i].set_state(actions_1[f"light_{i}"])
+            for i in range(len(env_2.junctions)):
+                env_2.junctions[i].set_state(actions_2[f"light_{i}"])
 
-        # if current_step == max_step:
-        #     running = False
+            env_1.step()
+            env_2.step()
+
+            town_1.step(env_1.vehicles, env_1.junctions)
+            town_2.step(env_2.vehicles, env_2.junctions)
+
+            town_1.update_state()
+            town_2.update_state()
+
+            town_1.render_map()
+            town_2.render_map()
+
             current_step += 1

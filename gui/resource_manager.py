@@ -38,6 +38,7 @@ class ResourceManager:
         resource_path_road_2 = r"./resource/road_2"
         resource_path_background = r"./resource/background_tiles"
         resource_path_car = r"./resource/car"
+        resource_path_blocks = r"./resource/town/Tiles"
 
         # Road_1 Tiles
         self.road_1_tiles = []
@@ -66,6 +67,11 @@ class ResourceManager:
         self.car_tiles = []
         for tile_image in [f for f in listdir(resource_path_car) if isfile(join(resource_path_car, f))]:
             self.car_tiles.append(scale_2_car_size(pygame.image.load(join(resource_path_car, tile_image))))
+
+        # Block Tiles
+        # self.block_tiles = []
+        # for tile_image in [f for f in listdir(resource_path_blocks) if isfile(join(resource_path_blocks, f))]:
+        #     self.block_tiles.append()
 
 
 def rotate_road(road_type, resource_manager: ResourceManager):
