@@ -111,6 +111,7 @@ class ResourceManager:
 
         self.road_1_tiles[0] = pygame.transform.scale(self.road_1_tiles[0], (display_settings.DEFAULT_TILE_SIZE + 5, display_settings.DEFAULT_TILE_SIZE + 5))
         self.road_1_tiles[1] = pygame.transform.scale(self.road_1_tiles[1], (display_settings.DEFAULT_TILE_SIZE + 5, display_settings.DEFAULT_TILE_SIZE + 5))
+        self.road_1_tiles[4] = pygame.transform.scale(self.road_1_tiles[4], (display_settings.DEFAULT_TILE_SIZE * 2, display_settings.DEFAULT_TILE_SIZE * 2))
 
         # Road 2 Tiles
         self.road_2_tiles = []
@@ -119,6 +120,7 @@ class ResourceManager:
 
         self.road_2_tiles[0] = pygame.transform.scale(self.road_2_tiles[0], (display_settings.DEFAULT_TILE_SIZE + 5, display_settings.DEFAULT_TILE_SIZE + 5))
         self.road_2_tiles[1] = pygame.transform.scale(self.road_2_tiles[1], (display_settings.DEFAULT_TILE_SIZE + 5, display_settings.DEFAULT_TILE_SIZE + 5))
+        self.road_2_tiles[4] = pygame.transform.scale(self.road_2_tiles[4], (display_settings.DEFAULT_TILE_SIZE * 2, display_settings.DEFAULT_TILE_SIZE * 2))
 
         # Background Tiles
         self.grass_tile = scale_2_tile_size(pygame.image.load(join(resource_path_background, "grass.png")))

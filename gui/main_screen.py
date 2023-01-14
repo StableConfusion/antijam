@@ -11,6 +11,8 @@ from environment import Vehicle, Junction, Direction
 class MainScreen:
     def __init__(self, town_map: np.ndarray, width: int, height: int):
         pygame.init()
+        pygame.display.set_caption('BITEhack Anti Jam')
+
         self.parse_town_map(town_map)
         self.map_height, self.map_width = town_map.shape
         self.width = width
@@ -46,7 +48,41 @@ class MainScreen:
                                  (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
 
         if self.junction_state is not None:
-            pass
+            for junction in self.junction_state:
+                y = junction.i
+                x = junction.j
+
+                self.screen.blit(self.resource_manager.road_1_tiles[4],
+                                 (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
+
+                # state: 0 - horizontal, 1 - vertical
+                if junction.state == 0:
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 15, 114, 4))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 40, 114, 4))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 66, 114, 4))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 91, 114, 4))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 114, 114, 4))
+                else:
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 15,
+                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 40,
+                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 66,
+                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 91,
+                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                    pygame.draw.rect(self.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 114,
+                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
 
         pygame.display.flip()
 
@@ -63,6 +99,9 @@ class MainScreen:
 
     def run(self):
         self.vehicle_state = [Vehicle(None, 1, 2, Direction.LEFT), Vehicle(None, 4, 7, Direction.UP)]
+        self.junction_state = [Junction(1, 6, None), Junction(8, 6, None)]
+        self.junction_state[0].state = 0
+        self.junction_state[1].state = 1
 
         while self.running:
             self.clock.tick(60)
