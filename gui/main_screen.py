@@ -9,16 +9,19 @@ from environment import Vehicle, Junction, Direction
 
 
 class MainScreen:
-    def __init__(self, town_map: np.ndarray, width: int, height: int):
+    def __init__(self, town_map: np.ndarray):
         pygame.init()
         pygame.display.set_caption('BITEhack Anti Jam')
 
+        screen_height = town_map.shape[0] * display_settings.DEFAULT_TILE_SIZE
+        screen_width = town_map.shape[1] * display_settings.DEFAULT_TILE_SIZE
+
         self.parse_town_map(town_map)
         self.map_height, self.map_width = town_map.shape
-        self.width = width
-        self.height = height
+        self.width = screen_width
+        self.height = screen_height
 
-        self.screen: pygame.Surface = pygame.display.set_mode((width, height))
+        self.screen: pygame.Surface = pygame.display.set_mode((self.width, self.height))
         self.resource_manager = ResourceManager()
 
         self.vehicle_state: Optional[List[Vehicle]] = None
@@ -29,6 +32,7 @@ class MainScreen:
 
         self.clock = pygame.time.Clock()
         self.running = True
+        self.run()
 
     def render_map(self):
         for y in range(self.map_height):
@@ -148,11 +152,11 @@ class MainScreen:
                     else:
                         print(f"Error in parsing map! x = {x}, y = {y}")
                         exit(-1)
-        print(self.town_map[2][6])
 
 
 if __name__ == '__main__':
 
+    # For testing
     town_map = np.array([
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
@@ -167,13 +171,6 @@ if __name__ == '__main__':
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     ])
 
-    screen_height = town_map.shape[0] * display_settings.DEFAULT_TILE_SIZE
-    screen_width = town_map.shape[1] * display_settings.DEFAULT_TILE_SIZE
-
     main_screen = MainScreen(
-        town_map=town_map,
-        width=screen_width,
-        height=screen_height
+        town_map=town_map
     )
-
-    main_screen.run()
