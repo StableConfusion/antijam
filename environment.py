@@ -1,12 +1,13 @@
 from __future__ import annotations
-import numpy as np
-from copy import deepcopy
-import matplotlib.pyplot as plt
-from enum import Enum
-from gui.main_screen import MainScreen
 
+from copy import deepcopy
+from typing import List
+
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import animation
-from matplotlib.animation import FuncAnimation
+
+from gui.main_screen import MainScreen
 from utils import Direction, opposite
 
 
@@ -19,23 +20,19 @@ class GridWorldEnv:
 
         # self.map_obs = self.map[self.map >= 1]
 
-        self.vehicles = [
-            Vehicle(self, 2, 1, Direction.DOWN),
-            Vehicle(self, 10, 1, Direction.DOWN),
-            Vehicle(self, 20, 1, Direction.DOWN),
-        ]
+        self.vehicles = self.generate_vehicles(50)
 
         # Pseudjunctions
         self.corner_roads = {
             (1, 1): Direction.DOWN,
             (2, 2): Direction.RIGHT,
-            (n-2, 1): Direction.RIGHT,
-            (n-3, 2): Direction.UP,
+            (n - 2, 1): Direction.RIGHT,
+            (n - 3, 2): Direction.UP,
 
-            (n-2, m-2): Direction.UP,
-            (n-3, m-3): Direction.LEFT,
-            (1, m-2): Direction.LEFT,
-            (2, m-3): Direction.DOWN
+            (n - 2, m - 2): Direction.UP,
+            (n - 3, m - 3): Direction.LEFT,
+            (1, m - 2): Direction.LEFT,
+            (2, m - 3): Direction.DOWN
         }
 
     def step(self) -> int:
@@ -132,9 +129,38 @@ class GridWorldEnv:
 
         return new_map, junctions
 
+    def generate_vehicles(self, n: int) -> List[Vehicle]:
+        veh_list = []
+        road_tiles = list(zip(*np.nonzero(self.map)))
+        indices = np.random.choice(len(road_tiles), n, replace=False)
+        road_tiles = [road_tiles[k] for k in indices]
+        print(road_tiles)
+        for i in range(n):
+            direction = None
+            if self.map[road_tiles[i][0], road_tiles[i][1] - 1] == 0:
+                direction = Direction.DOWN
+            elif self.map[road_tiles[i][0], road_tiles[i][1] + 1] == 0:
+                direction = Direction.UP
+            elif self.map[road_tiles[i][0] - 1, road_tiles[i][1]] == 0:
+                direction = Direction.LEFT
+            elif self.map[road_tiles[i][0] + 1, road_tiles[i][1]] == 0:
+                direction = Direction.RIGHT
+            # if it's on junction
+            elif self.map[
+                road_tiles[i][0] + 1, road_tiles[i][1] + 1] == 0 or self.map[
+                road_tiles[i][0] - 1, road_tiles[i][1] + 1] == 0:
+                direction = Direction.UP
+            elif self.map[
+                road_tiles[i][0] - 1, road_tiles[i][1] - 1] == 0 or self.map[
+                road_tiles[i][0] + 1, road_tiles[i][1] - 1] == 0:
+                direction = Direction.DOWN
+            assert direction is not None
+            veh_list.append(Vehicle(self, road_tiles[i][0], road_tiles[i][1], direction))
+        return veh_list
+
     def render_junctions(self, map_to_edit):
         for junction in self.junctions:
-            map_to_edit[junction.i:junction.i+2, junction.j:junction.j+2] = 3 + junction.state
+            map_to_edit[junction.i:junction.i + 2, junction.j:junction.j + 2] = 3 + junction.state
 
     def animate(self, n=1000):
         fig, ax = plt.subplots()
@@ -173,7 +199,7 @@ class Junction:
     def get_random_turn(self, from_direction):
         valid_turns = [turn for turn in self.valid_turns if turn[1] != opposite(from_direction)]
         total = sum([turn[0] for turn in valid_turns])
-        return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0]/total for turn in valid_turns])
+        return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0] / total for turn in valid_turns])
 
 
 class Vehicle:
@@ -192,7 +218,8 @@ class Vehicle:
         if self.temp_direction is not None:
             if self.direction.is_left_turn(self.temp_direction):
 
-                temp_direction = self.direction.value[0] + self.temp_direction.value[0], self.direction.value[1] + self.temp_direction.value[1]
+                temp_direction = self.direction.value[0] + self.temp_direction.value[0], self.direction.value[1] + \
+                                 self.temp_direction.value[1]
             else:
                 temp_direction = self.temp_direction.value
 
@@ -246,14 +273,13 @@ class Vehicle:
 if __name__ == '__main__':
     env = GridWorldEnv()
 
-    # env.animate(500)
-    ms = MainScreen(env.map)
-
-    for i in range(3):
-        env.step()
-        # env.render()
-        ms.step(env.vehicles, env.junctions)
-        if i % 10 == 9:
-            env.change_random_lights()
-    env.render()
-
+    env.animate(500)
+    # ms = MainScreen(env.map)
+    #
+    # for i in range(3):
+    #     env.step()
+    #     # env.render()
+    #     ms.step(env.vehicles, env.junctions)
+    #     if i % 10 == 9:
+    #         env.change_random_lights()
+    # env.render()
