@@ -4,6 +4,7 @@ from os.path import isfile, join
 import numpy as np
 import pygame
 
+import display_settings
 
 class TileSet:
     def __init__(self, file, size=(32, 32), margin=1, spacing=1):
@@ -70,12 +71,14 @@ class TileMap:
 
 
 def scale_2_tile_size(image):
-    return pygame.transform.scale(image, (ResourceManager.DEFAULT_TILE_SIZE, ResourceManager.DEFAULT_TILE_SIZE))
+    return pygame.transform.scale(image, (display_settings.DEFAULT_TILE_SIZE, display_settings.DEFAULT_TILE_SIZE))
+
+
+def scale_2_car_size(image):
+    return pygame.transform.scale(image, (display_settings.DEFAULT_CAR_WIDTH, display_settings.DEFAULT_TILE_SIZE))
 
 
 class ResourceManager:
-    DEFAULT_TILE_SIZE = 64
-
     """
     Image set author: craftpix (Free Game Assets (GUI, Sprite, Tilesets)
     Site: https://free-game-assets.itch.io/free-race-track-tile-set?download
@@ -84,6 +87,7 @@ class ResourceManager:
         resource_path_road_1 = r"../resource/road_1"
         resource_path_road_2 = r"../resource/road_2"
         resource_path_background = r"../resource/background_tiles"
+        resource_path_car = r"../resource/car"
 
         # Road_1 Tiles
         self.road_1_tiles = []
@@ -95,7 +99,13 @@ class ResourceManager:
         for tile_image in [f for f in listdir(resource_path_road_2) if isfile(join(resource_path_road_2, f))]:
             self.road_2_tiles.append(scale_2_tile_size(pygame.image.load(join(resource_path_road_2, tile_image))))
 
-        # Background tiles
+        # Background Tiles
         self.grass_tile = scale_2_tile_size(pygame.image.load(join(resource_path_background, "grass.png")))
         self.soil_tile = scale_2_tile_size(pygame.image.load(join(resource_path_background, "soil.png")))
         self.water_tile = scale_2_tile_size(pygame.image.load(join(resource_path_background, "water.png")))
+
+        # Car Tiles
+        self.car_tiles = []
+        for tile_image in [f for f in listdir(resource_path_car) if isfile(join(resource_path_car, f))]:
+            self.car_tiles.append(scale_2_car_size(pygame.image.load(join(resource_path_car, tile_image))))
+
