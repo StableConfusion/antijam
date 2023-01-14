@@ -63,7 +63,7 @@ class GridWorldEnv:
         plt.show()
 
     @staticmethod
-    def generate_map(i: int, j: int, hor_jun: int, ver_jun: int) -> np.array:
+    def generate_map(i: int, j: int, hor_jun: int, ver_jun: int) -> (np.array, np.array):
         new_map = np.zeros((i, j))
         junctions = []
 
@@ -136,7 +136,7 @@ class GridWorldEnv:
         road_tiles = list(zip(*np.nonzero(self.map)))
         indices = np.random.choice(len(road_tiles), n, replace=False)
         road_tiles = [road_tiles[k] for k in indices]
-        print(road_tiles)
+        # print(road_tiles)
         for i in range(n):
             direction = None
             if self.map[road_tiles[i][0], road_tiles[i][1] - 1] == 0:

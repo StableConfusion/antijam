@@ -26,63 +26,8 @@ class MainScreen:
         self.width = screen_width
         self.height = screen_height
 
-        self.screen: pygame.Surface = pygame.display.set_mode((self.width, self.height))
+        self.screen: pygame.Surface = pygame.display.set_mode((self.width * 2, self.height))
         self.resource_manager = ResourceManager()
-
-        self.vehicle_state: Optional[List] = None
-        self.junction_state: Optional[List] = None
-        self.vehicle_state_tmp: Optional[List] = None
-        self.junction_state_tmp: Optional[List] = None
-        self.should_update = False
-
-    def render_map(self):
-        for y in range(self.map_height):
-            for x in range(self.map_width):
-                self.screen.blit(self.resource_manager.grass_tile, (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
-                if self.town_map[y][x] != "grass":
-                    self.screen.blit(rotate_road(self.town_map[y][x], self.resource_manager),
-                                     (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
-        if self.vehicle_state is not None:
-            for vehicle in self.vehicle_state:
-                y = vehicle.i
-                x = vehicle.j
-
-                self.screen.blit(rotate_resize_car(self.resource_manager.car_tiles[1], vehicle.direction),
-                                 (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
-
-        if self.junction_state is not None:
-            for junction in self.junction_state:
-                y = junction.i
-                x = junction.j
-
-                self.screen.blit(self.resource_manager.road_1_tiles[4],
-                                 (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
-
-                offset = np.ceil(display_settings.TILE_SIZE * 0.05)
-                line_width = np.ceil(display_settings.TILE_SIZE * 0.25)
-
-                # state: 0 - horizontal, 1 - vertical
-                if junction.state == 0:
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.TILE_SIZE + offset,
-                                                 np.ceil((y + 0.75) * display_settings.TILE_SIZE), 2 * (display_settings.TILE_SIZE - offset), line_width))
-                else:
-                    pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(np.ceil((x + 0.75) * display_settings.TILE_SIZE),
-                                                 y * display_settings.TILE_SIZE + offset, line_width, 2 * (display_settings.TILE_SIZE - offset)))
-
-        pygame.display.flip()
-
-    def step(self, vehicle_state: List, junction_state: List):
-        self.vehicle_state_tmp = vehicle_state
-        self.junction_state_tmp = junction_state
-        self.should_update = True
-
-    def update_state(self):
-        if self.should_update:
-            self.vehicle_state = self.vehicle_state_tmp
-            self.junction_state = self.junction_state_tmp
-            self.should_update = False
 
     def parse_town_map(self, town_map: np.ndarray):
         self.town_map = [[None for _ in range(town_map.shape[1])] for _ in range(town_map.shape[0])]
@@ -121,23 +66,69 @@ class MainScreen:
                         exit(-1)
 
 
-if __name__ == '__main__':
+class Town:
+    def __init__(self, screen: MainScreen, has_offset: bool):
+        self.screen = screen
+        self.screen_offset = 0
+        if has_offset:
+            self.screen_offset = display_settings.DEFAULT_SCREEN_SIZE
 
-    # For testing
-    town_map = np.array([
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0],
-        [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0],
-        [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0],
-        [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0],
-        [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ])
+        self.vehicle_state: Optional[List] = None
+        self.junction_state: Optional[List] = None
+        self.vehicle_state_tmp: Optional[List] = None
+        self.junction_state_tmp: Optional[List] = None
+        self.should_update = False
 
-    main_screen = MainScreen(
-        town_map=town_map
-    )
+    def render_map(self):
+        for y in range(self.screen.map_height):
+            for x in range(self.screen.map_width):
+                self.screen.screen.blit(self.screen.resource_manager.grass_tile, (x * display_settings.TILE_SIZE + self.screen_offset, y * display_settings.TILE_SIZE))
+                if self.screen.town_map[y][x] != "grass":
+                    self.screen.screen.blit(rotate_road(self.screen.town_map[y][x], self.screen.resource_manager),
+                                     (x * display_settings.TILE_SIZE + self.screen_offset, y * display_settings.TILE_SIZE))
+
+        if self.junction_state is not None:
+            for junction in self.junction_state:
+                y = junction.i
+                x = junction.j
+
+                self.screen.screen.blit(self.screen.resource_manager.road_1_tiles[4],
+                                 (x * display_settings.TILE_SIZE + self.screen_offset, y * display_settings.TILE_SIZE))
+
+                offset = np.ceil(display_settings.TILE_SIZE * 0.05)
+                line_width = np.ceil(display_settings.TILE_SIZE * 0.25)
+
+                # state: 0 - horizontal, 1 - vertical
+                if junction.state == 0:
+                    pygame.draw.rect(self.screen.screen, (0, 200, 0),
+                                     pygame.Rect(x * display_settings.TILE_SIZE + offset + self.screen_offset,
+                                                 np.ceil((y + 0.75) * display_settings.TILE_SIZE), 2 * (display_settings.TILE_SIZE - offset), line_width))
+                else:
+                    pygame.draw.rect(self.screen.screen, (0, 200, 0),
+                                     pygame.Rect(np.ceil((x + 0.75) * display_settings.TILE_SIZE) + self.screen_offset,
+                                                 y * display_settings.TILE_SIZE + offset, line_width, 2 * (display_settings.TILE_SIZE - offset)))
+
+        if self.vehicle_state is not None:
+            for vehicle in self.vehicle_state:
+                y = vehicle.i
+                x = vehicle.j
+
+                self.screen.screen.blit(rotate_resize_car(self.screen.resource_manager.car_tiles[1], vehicle.direction),
+                                 (x * display_settings.TILE_SIZE + self.screen_offset, y * display_settings.TILE_SIZE))
+
+        pygame.display.flip()
+
+    def step(self, vehicle_state: List, junction_state: List):
+        self.vehicle_state_tmp = vehicle_state
+        self.junction_state_tmp = junction_state
+        self.should_update = True
+
+    def update_state(self):
+        if self.should_update:
+            self.vehicle_state = self.vehicle_state_tmp
+            self.junction_state = self.junction_state_tmp
+            self.should_update = False
+
+
+
+
