@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import List
+import matplotlib.pyplot as plt
+from enum import Enum
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -268,6 +271,7 @@ class Vehicle:
 
     def __repr__(self):
         return f"Vehicle({self.i}, {self.j}, {self.direction})"
+
 
 
 if __name__ == '__main__':
