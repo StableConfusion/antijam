@@ -1,9 +1,11 @@
+from threading import Thread
+import time
 import numpy as np
 import pygame
-import gui.display_settings as display_settings
-
 from typing import List, Tuple, Optional
 
+import gui.display_settings as display_settings
+from gui.display_settings import set_tile_size, set_car_size
 from gui.resource_manager import ResourceManager, rotate_resize_car, rotate_road
 from utils import Direction
 
@@ -13,8 +15,11 @@ class MainScreen:
         pygame.init()
         pygame.display.set_caption('BITEhack Anti Jam')
 
-        screen_height = town_map.shape[0] * display_settings.DEFAULT_TILE_SIZE
-        screen_width = town_map.shape[1] * display_settings.DEFAULT_TILE_SIZE
+        set_tile_size(town_map.shape[0])
+        set_car_size()
+
+        screen_height = display_settings.DEFAULT_SCREEN_SIZE
+        screen_width = display_settings.DEFAULT_SCREEN_SIZE
 
         self.parse_town_map(town_map)
         self.map_height, self.map_width = town_map.shape
@@ -30,24 +35,20 @@ class MainScreen:
         self.junction_state_tmp: Optional[List] = None
         self.should_update = False
 
-        self.clock = pygame.time.Clock()
-        self.running = True
-        self.run()
-
     def render_map(self):
         for y in range(self.map_height):
             for x in range(self.map_width):
-                self.screen.blit(self.resource_manager.grass_tile, (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
+                self.screen.blit(self.resource_manager.grass_tile, (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
                 if self.town_map[y][x] != "grass":
                     self.screen.blit(rotate_road(self.town_map[y][x], self.resource_manager),
-                                     (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
+                                     (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
         if self.vehicle_state is not None:
             for vehicle in self.vehicle_state:
                 y = vehicle.i
                 x = vehicle.j
 
                 self.screen.blit(rotate_resize_car(self.resource_manager.car_tiles[1], vehicle.direction),
-                                 (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
+                                 (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
 
         if self.junction_state is not None:
             for junction in self.junction_state:
@@ -55,36 +56,36 @@ class MainScreen:
                 x = junction.j
 
                 self.screen.blit(self.resource_manager.road_1_tiles[4],
-                                 (x * display_settings.DEFAULT_TILE_SIZE, y * display_settings.DEFAULT_TILE_SIZE))
+                                 (x * display_settings.TILE_SIZE, y * display_settings.TILE_SIZE))
 
                 # state: 0 - horizontal, 1 - vertical
                 if junction.state == 0:
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 15, 114, 4))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 15, 114, 4))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 40, 114, 4))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 40, 114, 4))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 66, 114, 4))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 66, 114, 4))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 91, 114, 4))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 91, 114, 4))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 6, y * display_settings.DEFAULT_TILE_SIZE + 114, 114, 4))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 6, y * display_settings.TILE_SIZE + 114, 114, 4))
                 else:
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 15,
-                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 15,
+                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 40,
-                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 40,
+                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 66,
-                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 66,
+                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 91,
-                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 91,
+                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
                     pygame.draw.rect(self.screen, (0, 200, 0),
-                                     pygame.Rect(x * display_settings.DEFAULT_TILE_SIZE + 114,
-                                                 y * display_settings.DEFAULT_TILE_SIZE + 6, 4, 114))
+                                     pygame.Rect(x * display_settings.TILE_SIZE + 114,
+                                                 y * display_settings.TILE_SIZE + 6, 4, 114))
 
         pygame.display.flip()
 
@@ -95,21 +96,9 @@ class MainScreen:
 
     def update_state(self):
         if self.should_update:
-            self.vehicle_state = self.vehicle_state_tmp.copy()
-            self.junction_state = self.junction_state_tmp.copy()
+            self.vehicle_state = self.vehicle_state_tmp
+            self.junction_state = self.junction_state_tmp
             self.should_update = False
-
-    def run(self):
-
-        while self.running:
-            self.clock.tick(60)
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-
-            self.update_state()
-            self.render_map()
 
     def parse_town_map(self, town_map: np.ndarray):
         self.town_map = [[None for _ in range(town_map.shape[1])] for _ in range(town_map.shape[0])]
