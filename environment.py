@@ -41,25 +41,7 @@ class GridWorldEnv:
         # self.map_obs = self.map[self.map >= 1]
 
         self.vehicles = [
-            Vehicle(self, 10, 5, Direction.RIGHT),
-            Vehicle(self, 9, 15, Direction.LEFT),
-            Vehicle(self, 9, 14, Direction.LEFT),
-            Vehicle(self, 9, 13, Direction.LEFT),
-            Vehicle(self, 9, 12, Direction.LEFT),
-            Vehicle(self, 1, 14, Direction.LEFT),
-            Vehicle(self, 10, 7, Direction.RIGHT),
-            Vehicle(self, 4, 8, Direction.DOWN),
-            Vehicle(self, 4, 9, Direction.UP),
-            Vehicle(self, 5, 9, Direction.UP),
-            Vehicle(self, 6, 9, Direction.UP),
-            Vehicle(self, 7, 9, Direction.UP),
-        ]
-
-        # Top left corner of junction
-        self.junctions = [
-            Junction(1, 8, [(1, Direction.LEFT), (1, Direction.RIGHT), (1, Direction.DOWN)], 1),
-            Junction(9, 8, [(1, Direction.LEFT), (1, Direction.RIGHT), (1, Direction.UP)]),
-            # Junction(9, 8, [(1, Direction.LEFT), (1, Direction.UP)]),
+            Vehicle(self, 2, 1, Direction.DOWN),
         ]
 
         # Pseudjunctions
@@ -111,39 +93,31 @@ class GridWorldEnv:
         new_map[1:-1, 1:3] = 1
         new_map[1:-1, -3:-1] = 1
 
-        hor_jun_loc = list(np.linspace(1, i - 2, hor_jun + 2, dtype=int)[1:-1])
-        ver_jun_loc = list(np.linspace(1, j - 2, ver_jun + 2, dtype=int)[1:-1])
-
-        for hor_loc in hor_jun_loc:
-            for ver_loc in ver_jun_loc:
-                junctions.append(
-                    Junction(hor_loc, ver_loc, [(1, Direction.LEFT), (1, Direction.RIGHT), (1, Direction.DOWN)]))
+        hor_jun_loc = list(np.linspace(1, i - 3, hor_jun + 2, dtype=int)[1:-1])
+        ver_jun_loc = list(np.linspace(1, j - 3, ver_jun + 2, dtype=int)[1:-1])
 
         # 3 prio roads
-        new_map[hor_jun_loc[len(hor_jun_loc) // 2] - 1:hor_jun_loc[len(hor_jun_loc) // 2] + 1, 1:-1] = 3
-        new_map[1:-1, ver_jun_loc[len(ver_jun_loc) // 2] - 1:ver_jun_loc[len(ver_jun_loc) // 2] + 1] = 3
+        new_map[hor_jun_loc[len(hor_jun_loc) // 2]:hor_jun_loc[len(hor_jun_loc) // 2] + 2, 1:-1] = 3
+        new_map[1:-1, ver_jun_loc[len(ver_jun_loc) // 2]:ver_jun_loc[len(ver_jun_loc) // 2] + 2] = 3
 
         # 2-prio roads
-        new_map[hor_jun_loc[len(hor_jun_loc) // 4] - 1:hor_jun_loc[len(hor_jun_loc) // 4] + 1, 1:-1] = 2
-        new_map[hor_jun_loc[3 * len(hor_jun_loc) // 4] - 1:hor_jun_loc[3 * len(hor_jun_loc) // 4] + 1, 1:-1] = 2
-        new_map[1:-1, ver_jun_loc[len(ver_jun_loc) // 4] - 1:ver_jun_loc[len(ver_jun_loc) // 4] + 1] = 2
-        new_map[1:-1, ver_jun_loc[3 * len(ver_jun_loc) // 4] - 1:ver_jun_loc[3 * len(ver_jun_loc) // 4] + 1] = 2
+        new_map[hor_jun_loc[len(hor_jun_loc) // 4]:hor_jun_loc[len(hor_jun_loc) // 4] + 2, 1:-1] = 2
+        new_map[hor_jun_loc[3 * len(hor_jun_loc) // 4]:hor_jun_loc[3 * len(hor_jun_loc) // 4] + 2, 1:-1] = 2
+        new_map[1:-1, ver_jun_loc[len(ver_jun_loc) // 4]:ver_jun_loc[len(ver_jun_loc) // 4] + 2] = 2
+        new_map[1:-1, ver_jun_loc[3 * len(ver_jun_loc) // 4]:ver_jun_loc[3 * len(ver_jun_loc) // 4] + 2] = 2
 
-        print(hor_jun_loc)
-        print(ver_jun_loc)
         # 1-prio roads
         for hor_loc in hor_jun_loc:
             if hor_loc not in [hor_jun_loc[len(hor_jun_loc) // 2], hor_jun_loc[len(hor_jun_loc) // 4],
                                hor_jun_loc[3 * len(hor_jun_loc) // 4]]:
-                new_map[hor_loc - 1:hor_loc + 1, 1:-1] = 1
+                new_map[hor_loc:hor_loc + 2, 1:-1] = 1
         for ver_loc in ver_jun_loc:
             if ver_loc not in [ver_jun_loc[len(ver_jun_loc) // 2], ver_jun_loc[len(ver_jun_loc) // 4],
                                ver_jun_loc[3 * len(ver_jun_loc) // 4]]:
-                new_map[1:-1, ver_loc - 1:ver_loc + 1] = 1
+                new_map[1:-1, ver_loc:ver_loc + 2] = 1
 
-
-        hor_jun_loc = list(np.linspace(1, i - 2, hor_jun + 2, dtype=int)[1:-1])
-        ver_jun_loc = list(np.linspace(1, j - 2, ver_jun + 2, dtype=int)[1:-1])
+        hor_jun_loc = list(np.linspace(1, i - 3, hor_jun + 2, dtype=int))
+        ver_jun_loc = list(np.linspace(1, j - 3, ver_jun + 2, dtype=int))
 
         for hor_loc in hor_jun_loc:
             for ver_loc in ver_jun_loc:
@@ -153,11 +127,11 @@ class GridWorldEnv:
                 right_prio = -1
                 if not hor_loc == 1:
                     up_prio = new_map[hor_loc - 1, ver_loc]
-                if not hor_loc == i - 2:
+                if not hor_loc == i - 3:
                     down_prio = new_map[hor_loc + 2, ver_loc]
                 if not ver_loc == 1:
                     left_prio = new_map[hor_loc, ver_loc - 1]
-                if not ver_loc == j - 2:
+                if not ver_loc == j - 3:
                     right_prio = new_map[hor_loc, ver_loc + 2]
 
                 negative = [up_prio, down_prio, left_prio, right_prio].count(-1)
@@ -290,10 +264,11 @@ class Vehicle:
 
 if __name__ == '__main__':
     env = GridWorldEnv()
-    # for i in range(30):
+    # for i in range(50):
     #     print(env.step())
     #     env.render()
     #     if i % 10 == 9:
     #         env.change_random_lights()
-    # env.animate(500)
+    # env.render()
+    env.animate(500)
 
