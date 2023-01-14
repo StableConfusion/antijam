@@ -3,16 +3,15 @@
 ## Step
 
 args:
-- action: TODO
+- `action`: `{"light_{i}": 0 or 1}`
 
 returns:
-- observation
-- reward: mean car speed
-- terminated: False
-- info: None
+- `observation`: `{"light_{i}": observation tensor}`
+- `reward`: `{"light_{i}": mean car speed}`
+- `terminated`: `{"light_{i}": False, "__all__": False}`
+- `info`: `{"light_{i}": {}}`
 
-observation: tensor[n, m, 5]
-channels:
+observation tensor NxMx5:
 - map: 1 where road
 - cars: 1 where car
 - this agent: 1 at current light agent position
