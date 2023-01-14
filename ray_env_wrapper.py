@@ -8,7 +8,7 @@ class AntiJamEnv(MultiAgentEnv):
     def __init__(self, config: EnvContext):
         super().__init__()
 
-        self.steps_left = 100
+        self.steps_left = 50
 
         self.env = GridWorldEnv()
 
@@ -23,13 +23,14 @@ class AntiJamEnv(MultiAgentEnv):
         self.observation_space = Box(
             low=0,
             high=1,
-            shape=(6 * self.grid_size[0] * self.grid_size[1],),
+            # shape=(6, self.grid_size[0], self.grid_size[1]),
+            shape=(4 * self.grid_size[0] * self.grid_size[1],),
             dtype=np.uint8,
         )
 
     def reset(self):
         self.env = GridWorldEnv()
-        self.steps_left = 100
+        self.steps_left = 50
         obs_dict = {}
         for i in range(self.num_lights):
             obs_dict[f"light_{i}"] = self.get_light_observation(i)
@@ -48,7 +49,7 @@ class AntiJamEnv(MultiAgentEnv):
         info_dict = {}
 
         for i in range(self.num_lights):
-            self.env.junctions[i].state = action_dict[f"light_{i}"]
+            self.env.junctions[i].set_state(action_dict[f"light_{i}"])
 
         num_moved = self.env.step()
         reward = num_moved / self.num_cars
@@ -98,4 +99,11 @@ class AntiJamEnv(MultiAgentEnv):
         obs[this_junction.i : this_junction.i + 2,
             this_junction.j : this_junction.j + 2, 3] = 1
 
-        return obs.flatten()
+        return np.stack((
+            # obs[:, :, 0],
+            # obs[:, :, 1],
+            obs[:, :, 2],
+            obs[:, :, 3],
+            obs[:, :, 4],
+            obs[:, :, 5],
+        )).flatten()
