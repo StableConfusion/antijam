@@ -1,16 +1,13 @@
 from __future__ import annotations
-
+import numpy as np
 from copy import deepcopy
 from typing import List
 import matplotlib.pyplot as plt
 from enum import Enum
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import animation
-
 from gui.main_screen import MainScreen
+
+from matplotlib import animation
+from matplotlib.animation import FuncAnimation
 from utils import Direction, opposite
 
 
@@ -48,6 +45,8 @@ class GridWorldEnv:
         for vehicle in self.vehicles:
             if vehicle.move():
                 vehicles_moved += 1
+        for junction in self.junctions:
+            junction.unblock()
         return vehicles_moved
 
     def change_random_lights(self):
@@ -195,6 +194,8 @@ class Junction:
         # 0 - left / right, 1 - up / down
         self.valid_turns = valid_turns
         self.state = state
+        # yellow light
+        self.is_blocked = False
 
     def is_in_junction(self, i, j):
         return self.i <= i <= self.i + 1 and self.j <= j <= self.j + 1
@@ -203,6 +204,15 @@ class Junction:
         valid_turns = [turn for turn in self.valid_turns if turn[1] != opposite(from_direction)]
         total = sum([turn[0] for turn in valid_turns])
         return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0] / total for turn in valid_turns])
+
+    def set_state(self, new_state):
+        if new_state ^ self.state == 0:
+            return
+        self.is_blocked = True
+        self.state = new_state
+
+    def unblock(self):
+        self.is_blocked = False
 
 
 class Vehicle:
@@ -244,6 +254,8 @@ class Vehicle:
             for junction in self.world.junctions:
                 if not junction.is_in_junction(next_i, next_j): continue
 
+                if junction.is_blocked: return False
+
                 if junction.state == 0:
                     if self.direction not in [Direction.LEFT, Direction.RIGHT]:
                         return False
@@ -279,11 +291,13 @@ if __name__ == '__main__':
 
     env.animate(500)
     # ms = MainScreen(env.map)
-    #
     # for i in range(3):
     #     env.step()
-    #     # env.render()
-    #     ms.step(env.vehicles, env.junctions)
+    #     env.render()
+    #     # ms.step(env.vehicles, env.junctions)
     #     if i % 10 == 9:
     #         env.change_random_lights()
+
+    # env.map > 0
     # env.render()
+
