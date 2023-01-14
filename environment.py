@@ -13,14 +13,18 @@ from utils import Direction, opposite
 
 class GridWorldEnv:
     def __init__(self, render_mode=None):
-        self.map, self.junctions = self.generate_map(50, 50, 5, 5)
+        # self.map, self.junctions = self.generate_map(16, 16, 1, 1)
+        self.map, self.junctions = self.generate_map(100, 100, 4, 4)
 
         n, m = self.map.shape
         self.day = 0
 
         # self.map_obs = self.map[self.map >= 1]
 
-        self.vehicles = self.generate_vehicles(50)
+        self.vehicles = self.generate_vehicles(700)
+        # self.vehicles = [
+        #     Vehicle(self, 1, 10, Direction.LEFT),
+        # ]
 
         # Pseudjunctions
         self.corner_roads = {
@@ -47,11 +51,13 @@ class GridWorldEnv:
                 vehicles_moved += 1
         for junction in self.junctions:
             junction.unblock()
+        for vehicle in self.vehicles:
+            vehicle.unswap()
         return vehicles_moved
 
     def change_random_lights(self):
         for junction in self.junctions:
-            junction.state = np.random.randint(0, 2)
+            junction.set_state(np.random.randint(0, 2))
 
     def render(self):
         temp = deepcopy(self.map)
@@ -136,7 +142,7 @@ class GridWorldEnv:
         road_tiles = list(zip(*np.nonzero(self.map)))
         indices = np.random.choice(len(road_tiles), n, replace=False)
         road_tiles = [road_tiles[k] for k in indices]
-        # print(road_tiles)
+
         for i in range(n):
             direction = None
             if self.map[road_tiles[i][0], road_tiles[i][1] - 1] == 0:
@@ -148,6 +154,10 @@ class GridWorldEnv:
             elif self.map[road_tiles[i][0] + 1, road_tiles[i][1]] == 0:
                 direction = Direction.RIGHT
             # if it's on junction
+            elif road_tiles[i][0] == 2:
+                direction = Direction.RIGHT
+            elif road_tiles[i][0] == self.map.shape[0] - 3:
+                direction = Direction.LEFT
             elif self.map[
                 road_tiles[i][0] + 1, road_tiles[i][1] + 1] == 0 or self.map[
                 road_tiles[i][0] - 1, road_tiles[i][1] + 1] == 0:
@@ -162,7 +172,7 @@ class GridWorldEnv:
 
     def render_junctions(self, map_to_edit):
         for junction in self.junctions:
-            map_to_edit[junction.i:junction.i + 2, junction.j:junction.j + 2] = 3 + junction.state
+            map_to_edit[junction.i:junction.i + 2, junction.j:junction.j + 2] = -2 + junction.state
 
     def animate(self, n=1000):
         fig, ax = plt.subplots()
@@ -181,7 +191,7 @@ class GridWorldEnv:
                 self.change_random_lights()
             ims.append([im])
 
-        ani = animation.ArtistAnimation(fig, ims, interval=200, blit=True,
+        ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
                                         repeat_delay=1000)
 
         plt.show()
@@ -223,25 +233,35 @@ class Vehicle:
 
         self.direction = start_direction
         self.temp_direction = None
+        self.swapped = False
 
     def move(self):
         self.find_direction()
+
+        if self.swapped: return True
+
         temp_direction = self.direction.value
 
         if self.temp_direction is not None:
-            if self.direction.is_left_turn(self.temp_direction):
-
-                temp_direction = self.direction.value[0] + self.temp_direction.value[0], self.direction.value[1] + \
-                                 self.temp_direction.value[1]
-            else:
-                temp_direction = self.temp_direction.value
+            temp_direction = self.direction.value[0] + self.temp_direction.value[0], \
+                             self.direction.value[1] + self.temp_direction.value[1]
 
         next_i, next_j = self.i + temp_direction[0], self.j + temp_direction[1]
 
         # Other vehicles
         for vehicle in self.world.vehicles:
             if vehicle.i == next_i and vehicle.j == next_j:
-                return False
+                if self.temp_direction is not None and vehicle.temp_direction is not None:
+                    self.i, self.j, vehicle.i, vehicle.j = vehicle.i, vehicle.j, self.i, self.j
+                    vehicle.swapped = True
+                    self.swapped = True
+                    self.direction = self.temp_direction
+                    vehicle.direction = vehicle.temp_direction
+                    self.temp_direction = None
+                    vehicle.temp_direction = None
+                    return True
+                else:
+                    return False
 
         # On the junction
         is_in_junction = False
@@ -264,7 +284,11 @@ class Vehicle:
                         return False
 
                 if self.temp_direction is None:
-                    self.temp_direction = junction.get_random_turn(self.direction)
+                    temp_direction = junction.get_random_turn(self.direction)
+                    if self.direction.is_left_turn(temp_direction):
+                        self.temp_direction = temp_direction
+                    else:
+                        self.direction = temp_direction
         else:
             if self.temp_direction is not None:
                 self.direction = self.temp_direction
@@ -280,6 +304,9 @@ class Vehicle:
         for i1, j1 in self.world.corner_roads:
             if self.i == i1 and self.j == j1:
                 self.direction = self.world.corner_roads[(i1, j1)]
+
+    def unswap(self):
+        self.swapped = False
 
     def __repr__(self):
         return f"Vehicle({self.i}, {self.j}, {self.direction})"
