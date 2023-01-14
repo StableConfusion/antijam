@@ -19,6 +19,13 @@ class Direction(Enum):
             [Direction.RIGHT, Direction.UP]
         ]
 
+    def opposite(self):
+        return {
+            Direction.RIGHT: Direction.LEFT,
+            Direction.DOWN: Direction.UP,
+            Direction.LEFT: Direction.RIGHT,
+            Direction.UP: Direction.DOWN
+        }[self]
 
 class GridWorldEnv:
     def __init__(self, render_mode=None):
@@ -43,13 +50,15 @@ class GridWorldEnv:
 
         self.vehicles = [
             Vehicle(self, 10, 5, Direction.RIGHT),
+            Vehicle(self, 1, 14, Direction.LEFT),
             Vehicle(self, 10, 7, Direction.RIGHT),
         ]
 
         # Top left corner of junction
         self.junctions = [
-            Junction(1, 8, [(1, Direction.LEFT), (1, Direction.RIGHT), (1, Direction.DOWN)]),
+            Junction(1, 8, [(1, Direction.LEFT), (1, Direction.RIGHT), (1, Direction.DOWN)], 1),
             Junction(9, 8, [(1, Direction.LEFT), (1, Direction.RIGHT), (1, Direction.UP)]),
+            # Junction(9, 8, [(1, Direction.LEFT), (1, Direction.UP)]),
         ]
 
         # Pseudjunctions
@@ -65,7 +74,7 @@ class GridWorldEnv:
         }
 
         self.render()
-        for i in range(10):
+        for i in range(15):
             self.step()
             self.render()
 
@@ -95,7 +104,7 @@ class Junction:
         return self.i <= i <= self.i + 1 and self.j <= j <= self.j + 1
 
     def get_random_turn(self, from_direction):
-        valid_turns = [turn for turn in self.valid_turns if turn[1] != from_direction]
+        valid_turns = [turn for turn in self.valid_turns if turn[1] != from_direction.opposite()]
         total = sum([turn[0] for turn in valid_turns])
         return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0]/total for turn in valid_turns])
 
@@ -111,16 +120,17 @@ class Vehicle:
 
     def move(self):
         self.find_direction()
-        direction = self.direction
+        temp_direction = self.direction.value
 
         if self.temp_direction:
             if self.direction.is_left_turn(self.temp_direction):
-                direction = direction[0] + self.temp_direction.value[0], direction[1] + self.temp_direction.value[1]
+                temp_direction = self.direction.value[0] + self.temp_direction.value[0], self.direction.value[1] + self.temp_direction.value[1]
             else:
-                direction = self.temp_direction.value
-                self.direction = self.temp_direction
+                temp_direction = self.temp_direction.value
+            self.direction = self.temp_direction
             self.temp_direction = None
-        next_i, next_j = self.i + direction[0], self.j + direction[1]
+
+        next_i, next_j = self.i + temp_direction[0], self.j + temp_direction[1]
 
         # Other vehicles
         for vehicle in self.world.vehicles:
@@ -128,26 +138,29 @@ class Vehicle:
                 return
 
         # On the junction
+        is_in_junction = False
         for junction in self.world.junctions:
             if junction.is_in_junction(self.i, self.j):
                 pass
+                is_in_junction = True
 
         # Want to entry junctions
-        for junction in self.world.junctions:
-            if not junction.is_in_junction(next_i, next_j): continue
+        if not is_in_junction:
+            for junction in self.world.junctions:
+                if not junction.is_in_junction(next_i, next_j): continue
 
-            if junction.state == 0:
-                if direction not in [Direction.LEFT, Direction.RIGHT]:
-                    return
-            else:
-                if direction not in [Direction.DOWN, Direction.UP]:
-                    return
+                if junction.state == 0:
+                    if self.direction not in [Direction.LEFT, Direction.RIGHT]:
+                        return
+                else:
+                    if self.direction not in [Direction.DOWN, Direction.UP]:
+                        return
 
-            if self.temp_direction is None:
-                self.temp_direction = junction.get_random_turn(direction)
+                if self.temp_direction is None:
+                    self.temp_direction = junction.get_random_turn(self.direction)
 
         # Road
-        assert self.world.map[next_i, next_j] == 1
+        assert self.world.map[next_i, next_j] >= 1
 
         self.i, self.j = next_i, next_j
 
@@ -155,6 +168,9 @@ class Vehicle:
         for i1, j1 in self.world.corner_roads:
             if self.i == i1 and self.j == j1:
                 self.direction = self.world.corner_roads[(i1, j1)]
+
+    def __repr__(self):
+        return f"Vehicle({self.i}, {self.j}, {self.direction})"
 
 
 if __name__ == '__main__':
