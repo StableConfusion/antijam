@@ -1,11 +1,11 @@
 import numpy as np
 import pygame
-import display_settings
+import gui.display_settings as display_settings
 
 from typing import List, Tuple, Optional
 
 from gui.resource_manager import ResourceManager, rotate_resize_car, rotate_road
-from environment import Vehicle, Junction, Direction
+from utils import Direction
 
 
 class MainScreen:
@@ -24,10 +24,10 @@ class MainScreen:
         self.screen: pygame.Surface = pygame.display.set_mode((self.width, self.height))
         self.resource_manager = ResourceManager()
 
-        self.vehicle_state: Optional[List[Vehicle]] = None
-        self.junction_state: Optional[List[Junction]] = None
-        self.vehicle_state_tmp: Optional[List[Junction]] = None
-        self.junction_state_tmp: Optional[List[Junction]] = None
+        self.vehicle_state: Optional[List] = None
+        self.junction_state: Optional[List] = None
+        self.vehicle_state_tmp: Optional[List] = None
+        self.junction_state_tmp: Optional[List] = None
         self.should_update = False
 
         self.clock = pygame.time.Clock()
@@ -88,7 +88,7 @@ class MainScreen:
 
         pygame.display.flip()
 
-    def step(self, vehicle_state: List[Vehicle], junction_state: List[Junction]):
+    def step(self, vehicle_state: List, junction_state: List):
         self.vehicle_state_tmp = vehicle_state
         self.junction_state_tmp = junction_state
         self.should_update = True
@@ -100,10 +100,6 @@ class MainScreen:
             self.should_update = False
 
     def run(self):
-        self.vehicle_state = [Vehicle(None, 1, 2, Direction.LEFT), Vehicle(None, 4, 7, Direction.UP)]
-        self.junction_state = [Junction(1, 6, None), Junction(8, 6, None)]
-        self.junction_state[0].state = 0
-        self.junction_state[1].state = 1
 
         while self.running:
             self.clock.tick(60)

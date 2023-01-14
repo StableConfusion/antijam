@@ -4,8 +4,8 @@ from os.path import isfile, join
 import numpy as np
 import pygame
 
-import display_settings
-from environment import Direction
+import gui.display_settings as display_settings
+from utils import Direction
 
 
 class TileSet:
@@ -99,10 +99,10 @@ class ResourceManager:
     Site: https://free-game-assets.itch.io/free-race-track-tile-set?download
     """
     def __init__(self):
-        resource_path_road_1 = r"../resource/road_1"
-        resource_path_road_2 = r"../resource/road_2"
-        resource_path_background = r"../resource/background_tiles"
-        resource_path_car = r"../resource/car"
+        resource_path_road_1 = r"./resource/road_1"
+        resource_path_road_2 = r"./resource/road_2"
+        resource_path_background = r"./resource/background_tiles"
+        resource_path_car = r"./resource/car"
 
         # Road_1 Tiles
         self.road_1_tiles = []

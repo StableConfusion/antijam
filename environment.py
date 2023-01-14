@@ -3,33 +3,12 @@ import numpy as np
 from copy import deepcopy
 import matplotlib.pyplot as plt
 from enum import Enum
+from gui.main_screen import MainScreen
 
 from matplotlib import animation
 from matplotlib.animation import FuncAnimation
+from utils import Direction, opposite
 
-
-class Direction(Enum):
-    RIGHT = (0, 1)
-    DOWN = (1, 0)
-    LEFT = (0, -1)
-    UP = (-1, 0)
-
-    def is_left_turn(self, other: Direction):
-        return [self, other] in [
-            [Direction.UP, Direction.LEFT],
-            [Direction.LEFT, Direction.DOWN],
-            [Direction.DOWN, Direction.RIGHT],
-            [Direction.RIGHT, Direction.UP]
-        ]
-
-
-def opposite(direction: Direction):
-    return {
-        Direction.RIGHT: Direction.LEFT,
-        Direction.DOWN: Direction.UP,
-        Direction.LEFT: Direction.RIGHT,
-        Direction.UP: Direction.DOWN
-    }[direction]
 
 class GridWorldEnv:
     def __init__(self, render_mode=None):
@@ -42,6 +21,8 @@ class GridWorldEnv:
 
         self.vehicles = [
             Vehicle(self, 2, 1, Direction.DOWN),
+            Vehicle(self, 10, 1, Direction.DOWN),
+            Vehicle(self, 20, 1, Direction.DOWN),
         ]
 
         # Pseudjunctions
@@ -264,11 +245,15 @@ class Vehicle:
 
 if __name__ == '__main__':
     env = GridWorldEnv()
-    # for i in range(50):
-    #     print(env.step())
-    #     env.render()
-    #     if i % 10 == 9:
-    #         env.change_random_lights()
-    # env.render()
-    env.animate(500)
+
+    # env.animate(500)
+    ms = MainScreen(env.map)
+
+    for i in range(3):
+        env.step()
+        # env.render()
+        ms.step(env.vehicles, env.junctions)
+        if i % 10 == 9:
+            env.change_random_lights()
+    env.render()
 
