@@ -7,10 +7,9 @@ args:
 
 returns:
 - observation
-- reward
-- terminated
-- truncated
-- info
+- reward: mean car speed
+- terminated: False
+- info: None
 
 observation: tensor[n, m, 5]
 channels:
