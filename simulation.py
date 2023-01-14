@@ -5,6 +5,7 @@ from environment import GridWorldEnv
 from gui.main_screen import MainScreen, Town
 from random_agent import RandomAgent
 from trained_agent import TrainedAgent
+from inteligent_agent import InteligentAgent
 
 
 class ReplayBuffer:
@@ -32,8 +33,9 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
 
     agent_1 = RandomAgent()
-    agent_2 = RandomAgent()
-    # agent_2 = TrainedAgent('ray_results/PPO/PPO_antijam_0db8c_00000_0_2023-01-14_22-18-56/checkpoint_000005')
+    # agent_1 = InteligentAgent()
+    # agent_2 = RandomAgent()
+    agent_2 = TrainedAgent('ray_results/PPO/PPO_antijam_54f2f_00000_0_2023-01-14_23-18-11/checkpoint_000021')
 
     buffer_size = 100
     r_buffer_1 = ReplayBuffer(buffer_size)

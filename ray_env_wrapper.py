@@ -80,8 +80,9 @@ class AntiJamEnv(MultiAgentEnv):
         obs[:, :, 0] = np.where(self.env.map == 0, 0, 1)
         
         for junction in self.env.junctions:
-            obs[junction.i : junction.i + 2,
-                junction.j : junction.j + 2, 1] = 1
+            if junction.cooldown == 0:
+                obs[junction.i : junction.i + 2,
+                    junction.j : junction.j + 2, 1] = 1
 
             if junction.state == 0:
                 obs[junction.i : junction.i + 2,
