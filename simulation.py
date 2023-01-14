@@ -4,6 +4,7 @@ import pygame
 from environment import GridWorldEnv
 from gui.main_screen import MainScreen, Town
 from random_agent import RandomAgent
+from inteligent_agent import InteligentAgent
 
 
 class ReplayBuffer:
