@@ -11,6 +11,9 @@ from matplotlib.animation import FuncAnimation
 from utils import Direction, opposite
 
 
+JUNCTION_COOLDOWN = 5
+
+
 class GridWorldEnv:
     def __init__(self, render_mode=None, map_size=42, num_of_vehicles=80):
         self.map, self.junctions = self.generate_map(map_size, map_size, 4, 4)
@@ -205,6 +208,7 @@ class Junction:
         self.state = state
         # yellow light
         self.is_blocked = False
+        self.cooldown = 0
 
     def is_in_junction(self, i, j):
         return self.i <= i <= self.i + 1 and self.j <= j <= self.j + 1
@@ -215,10 +219,14 @@ class Junction:
         return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0] / total for turn in valid_turns])
 
     def set_state(self, new_state):
+        if self.cooldown > 0:
+            self.cooldown -= 1
+            return
         if new_state ^ self.state == 0:
             return
         self.is_blocked = True
         self.state = new_state
+        self.cooldown = JUNCTION_COOLDOWN
 
     def unblock(self):
         self.is_blocked = False
