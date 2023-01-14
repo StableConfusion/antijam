@@ -73,23 +73,18 @@ class GridWorldEnv:
             (2, m-3): Direction.DOWN
         }
 
-        self.render()
-        for i in range(15):
-            self.step()
-            self.render()
-
     def step(self):
         for vehicle in self.vehicles:
             vehicle.move()
 
-    def render(self):
-        temp = deepcopy(self.map)
+    # def render(self):
+    #     temp = deepcopy(self.map)
 
-        for vehicle in self.vehicles:
-            temp[vehicle.i, vehicle.j] = 3
+    #     for vehicle in self.vehicles:
+    #         temp[vehicle.i, vehicle.j] = 3
 
-        plt.matshow(temp)
-        plt.show()
+    #     plt.matshow(temp)
+    #     plt.show()
 
 
 class Junction:
