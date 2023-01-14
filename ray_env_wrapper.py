@@ -76,7 +76,7 @@ class AntiJamEnv(MultiAgentEnv):
         # 5: lights which are 1
         obs = np.zeros((self.grid_size[0], self.grid_size[1], 6), dtype=np.uint8)
         
-        obs[:, :, 0] = self.env.map
+        obs[:, :, 0] = np.where(self.env.map == 0, 0, 1)
         
         for junction in self.env.junctions:
             obs[junction.i : junction.i + 2,
