@@ -16,3 +16,7 @@ been trained in such an environment.
 Results have been compared with a baseline
 model (switching lights every X ticks).
 The learned PPO agent outperforms the baseline.
+
+# Demo
+
+![video](docs/demo1.webm)
