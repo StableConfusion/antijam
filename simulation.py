@@ -31,7 +31,7 @@ if __name__ == '__main__':
     env_2 = GridWorldEnv()
 
     # env.animate(500)
-    ms = MainScreen(env_1.map)
+    ms = MainScreen(env_1.map, verbose=1)
     town_1 = Town(ms, False)
     town_2 = Town(ms, True)
     clock = pygame.time.Clock()
@@ -83,4 +83,7 @@ if __name__ == '__main__':
             town_1.render_map()
             town_2.render_map()
 
+            ms.render_prompts()
+
+            pygame.display.flip()
             current_step += 1

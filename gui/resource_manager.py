@@ -39,6 +39,7 @@ class ResourceManager:
         resource_path_background = r"./resource/background_tiles"
         resource_path_car = r"./resource/car"
         resource_path_blocks = r"./resource/town/Tiles"
+        resource_path_commentary = r'./resource/commentary'
 
         # Road_1 Tiles
         self.road_1_tiles = []
@@ -67,6 +68,16 @@ class ResourceManager:
         self.car_tiles = []
         for tile_image in [f for f in listdir(resource_path_car) if isfile(join(resource_path_car, f))]:
             self.car_tiles.append(scale_2_car_size(pygame.image.load(join(resource_path_car, tile_image))))
+
+        # Speech Bubble
+        self.speech_bubble = []
+        for tile_image in [f for f in listdir(resource_path_commentary) if isfile(join(resource_path_commentary, f))]:
+            self.speech_bubble.append(pygame.image.load(join(resource_path_commentary, tile_image)))
+
+        self.speech_bubble[0] = pygame.transform.scale(self.speech_bubble[0], (400, 200))
+        self.speech_bubble[1] = pygame.transform.scale(self.speech_bubble[1], (400, 200))
+        self.speech_bubble[2] = pygame.transform.scale(self.speech_bubble[2], (64, 64))
+        self.speech_bubble[3] = pygame.transform.scale(self.speech_bubble[3], (64, 64))
 
         # Block Tiles
         # self.block_tiles = []
