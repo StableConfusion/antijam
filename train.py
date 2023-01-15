@@ -1,3 +1,5 @@
+import pprint
+
 import ray
 from ray import tune
 from ray.air.integrations.wandb import WandbLoggerCallback
@@ -23,19 +25,24 @@ if __name__ == "__main__":
     }
     policy_ids = list(policies.keys())
 
+    config = (
+        PPOConfig()
+        .environment('antijam', disable_env_checking=True)
+        .framework('torch')
+        .resources(num_gpus=1)
+        .rollouts(num_rollout_workers=16, rollout_fragment_length=32, horizon=50)
+        .training(train_batch_size=512)
+        .multi_agent(
+            policies=policies,
+            policy_mapping_fn=lambda agent_id, episode, worker, **kwargs: policy_ids[0],
+        )
+    )
+
+    pprint.pprint(config.to_dict())
+
     tune.run(
         'PPO',
-        config=(
-            PPOConfig()
-            .environment('antijam', disable_env_checking=True)
-            .framework('torch')
-            .resources(num_gpus=0)
-            .rollouts(num_rollout_workers=4)
-            .multi_agent(
-                policies=policies,
-                policy_mapping_fn=lambda agent_id, episode, worker, **kwargs: policy_ids[0],
-            )
-        ).to_dict(),
+        config=config.to_dict(),
         callbacks=[WandbLoggerCallback(project='antijam')],
         local_dir='./ray_results',
         checkpoint_at_end=True,

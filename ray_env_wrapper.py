@@ -4,11 +4,14 @@ from ray.rllib.env import MultiAgentEnv, EnvContext
 from environment import GridWorldEnv
 
 
+MAX_STEPS = 50
+
+
 class AntiJamEnv(MultiAgentEnv):
     def __init__(self, config: EnvContext):
         super().__init__()
 
-        self.steps_left = 50
+        self.steps_left = MAX_STEPS
 
         self.env = GridWorldEnv()
 
@@ -23,14 +26,14 @@ class AntiJamEnv(MultiAgentEnv):
         self.observation_space = Box(
             low=0,
             high=1,
-            # shape=(6, self.grid_size[0], self.grid_size[1]),
-            shape=(4 * self.grid_size[0] * self.grid_size[1],),
+            # shape=(5, self.grid_size[0], self.grid_size[1]),
+            shape=(5 * self.grid_size[0] * self.grid_size[1],),
             dtype=np.uint8,
         )
 
     def reset(self):
         self.env = GridWorldEnv()
-        self.steps_left = 50
+        self.steps_left = MAX_STEPS
         obs_dict = {}
         for i in range(self.num_lights):
             obs_dict[f"light_{i}"] = self.get_light_observation(i)
@@ -77,7 +80,7 @@ class AntiJamEnv(MultiAgentEnv):
         # 5: lights which are 1
         obs = np.zeros((self.grid_size[0], self.grid_size[1], 6), dtype=np.uint8)
         
-        obs[:, :, 0] = np.where(self.env.map == 0, 0, 1)
+        # obs[:, :, 0] = np.where(self.env.map == 0, 0, 1)
         
         for junction in self.env.junctions:
             if junction.cooldown == 0:
@@ -102,7 +105,7 @@ class AntiJamEnv(MultiAgentEnv):
 
         return np.stack((
             # obs[:, :, 0],
-            # obs[:, :, 1],
+            obs[:, :, 1],
             obs[:, :, 2],
             obs[:, :, 3],
             obs[:, :, 4],
