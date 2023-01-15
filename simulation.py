@@ -35,7 +35,7 @@ if __name__ == '__main__':
     agent_1 = RandomAgent()
     # agent_1 = InteligentAgent()
     # agent_2 = RandomAgent()
-    agent_2 = TrainedAgent('ray_results/PPO/PPO_antijam_54f2f_00000_0_2023-01-14_23-18-11/checkpoint_000021')
+    agent_2 = TrainedAgent('./checkpoints/3')
 
     buffer_size = 100
     r_buffer_1 = ReplayBuffer(buffer_size)
