@@ -1,5 +1,7 @@
 # AntiJam Project
 
+***Winning project of BITEhack 2023 hackathon in AI category.***
+
 This is a Reinforcement Learning system that trains
 a traffic light agent to optimally switch based on
 real time traffic observations.
@@ -8,7 +10,7 @@ The optimization goal is the minimization
 of wasted fuel - fuel used while stuck in traffic.
 
 Each traffic light sees cars in the entire city,
-other traffic light states and it's own position.
+other traffic light states and its own position.
 
 The PPO (Proximal Policy Optimization) agent has
 been trained in such an environment.
@@ -88,3 +90,11 @@ steps.
 
 For simulation evaluation, an average of
 100 step rewards is taken.
+
+
+# Authors
+An amazing team from AGH UST Computer Science students:
+- [Carbon](https://github.com/Carbon225)
+- [Jakub Kosmydel](https://github.com/kosmydel)
+- [Michał Szafarczyk](https://github.com/Arch4ngel21)
+- [Bogusław Błachut](https://github.com/bblachut)
