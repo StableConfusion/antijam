@@ -94,7 +94,7 @@ For simulation evaluation, an average of
 
 # Authors
 An amazing team from AGH UST Computer Science students:
-- [Carbon](https://github.com/Carbon225)
+- [Jakub Karbowski](https://github.com/Carbon225)
 - [Jakub Kosmydel](https://github.com/kosmydel)
 - [Michał Szafarczyk](https://github.com/Arch4ngel21)
 - [Bogusław Błachut](https://github.com/bblachut)
