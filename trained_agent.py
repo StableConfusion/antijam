@@ -1,3 +1,8 @@
+'''
+An agent which loads a trained PPO checkpoint.
+'''
+
+import torch
 from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.algorithms.algorithm import Algorithm
 from environment import GridWorldEnv
@@ -19,22 +24,16 @@ class TrainedAgent:
             'policy_{}'.format(i): gen_policy(i) for i in range(1)
         }
         policy_ids = list(policies.keys())
-        
+
         config = (
             PPOConfig()
             .environment('antijam', disable_env_checking=True)
             .framework('torch')
-            .resources(num_gpus=1)
-            .rollouts(num_rollout_workers=1)
+            .resources(num_gpus=1 if torch.cuda.is_available() else 0)
             .multi_agent(
                 policies=policies,
                 policy_mapping_fn=lambda agent_id, episode, worker, **kwargs: policy_ids[0],
             )
-            # .training(
-            #     model={
-            #         'custom_model': CustomModel,
-            #     },
-            # )
         )
 
         self.algo = config.build()

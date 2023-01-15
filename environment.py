@@ -1,34 +1,33 @@
+'''
+The main city simulation implementation.
+'''
+
 from __future__ import annotations
-import numpy as np
+
 from copy import deepcopy
 from typing import List
-import matplotlib.pyplot as plt
-from enum import Enum
-from gui.main_screen import MainScreen
 
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import animation
-from matplotlib.animation import FuncAnimation
+
 from utils import Direction, opposite
 
-
-JUNCTION_COOLDOWN = 5
+JUNCTION_COOLDOWN = 10
 
 
 class GridWorldEnv:
     def __init__(self, render_mode=None, map_size=42, num_of_vehicles=80):
-        self.map, self.junctions = self.generate_map(map_size, map_size, 4, 4)
+        # Generate grid map and its junctions
+        self.map, self.junctions = self.generate_map(map_size, map_size, 3, 3)
 
         n, m = self.map.shape
         self.day = 0
 
-        # self.map_obs = self.map[self.map >= 1]
-
+        # Generate vehicles on random positions
         self.vehicles = self.generate_vehicles(num_of_vehicles)
-        # self.vehicles = [
-        #     Vehicle(self, 1, 10, Direction.LEFT),
-        # ]
 
-        # Pseudjunctions
+        # Corner junctions
         self.corner_roads = {
             (1, 1): Direction.DOWN,
             (2, 2): Direction.RIGHT,
@@ -43,35 +42,41 @@ class GridWorldEnv:
 
     def step(self) -> int:
         """
-        Makes simulation and returns how many vehicles were moved
+        Makes simulation step and returns how many vehicles were moved
         :return: reward
         """
         self.day += 1
         vehicles_moved = 0
+
+        # Move vehicles
         for vehicle in self.vehicles:
             if vehicle.move():
                 vehicles_moved += 1
+
+        # Unblock junctions after one tick
         for junction in self.junctions:
             junction.unblock()
+
+        # Remove left turn blocks
         for vehicle in self.vehicles:
             vehicle.unswap()
+
         return vehicles_moved
 
     def change_random_lights(self):
         for junction in self.junctions:
             junction.set_state(np.random.randint(0, 2))
 
-    def render(self):
-        temp = deepcopy(self.map)
-        self.render_junctions(temp)
-        for vehicle in self.vehicles:
-            temp[vehicle.i, vehicle.j] = 5
-
-        plt.matshow(temp)
-        plt.show()
-
     @staticmethod
-    def generate_map(i: int, j: int, hor_jun: int, ver_jun: int) -> (np.array, np.array):
+    def generate_map(i: int, j: int, hor_jun: int, ver_jun: int) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Generate random map
+        :param i: height
+        :param j: width
+        :param hor_jun: horizontal junctions amount
+        :param ver_jun: vertical junctions amount
+        :return:
+        """
         new_map = np.zeros((i, j))
         junctions = []
 
@@ -122,7 +127,8 @@ class GridWorldEnv:
                 if not ver_loc == j - 3:
                     right_prio = new_map[hor_loc, ver_loc + 2]
 
-                negative = [up_prio, down_prio, left_prio, right_prio].count(-1)
+                negative = [up_prio, down_prio,
+                            left_prio, right_prio].count(-1)
                 if negative == 2:
                     continue
 
@@ -161,22 +167,45 @@ class GridWorldEnv:
             elif road_tiles[i][0] == self.map.shape[0] - 3:
                 direction = Direction.LEFT
             elif self.map[
-                road_tiles[i][0] + 1, road_tiles[i][1] + 1] == 0 or self.map[
-                road_tiles[i][0] - 1, road_tiles[i][1] + 1] == 0:
+                    road_tiles[i][0] + 1, road_tiles[i][1] + 1] == 0 or self.map[
+                    road_tiles[i][0] - 1, road_tiles[i][1] + 1] == 0:
                 direction = Direction.UP
             elif self.map[
-                road_tiles[i][0] - 1, road_tiles[i][1] - 1] == 0 or self.map[
-                road_tiles[i][0] + 1, road_tiles[i][1] - 1] == 0:
+                    road_tiles[i][0] - 1, road_tiles[i][1] - 1] == 0 or self.map[
+                    road_tiles[i][0] + 1, road_tiles[i][1] - 1] == 0:
                 direction = Direction.DOWN
             assert direction is not None
-            veh_list.append(Vehicle(self, road_tiles[i][0], road_tiles[i][1], direction))
+            veh_list.append(
+                Vehicle(self, road_tiles[i][0], road_tiles[i][1], direction))
         return veh_list
 
+    def render(self):
+        """
+        Renders current state of the map and shows it as matplotlib image
+        """
+        temp = deepcopy(self.map)
+        self.render_junctions(temp)
+        for vehicle in self.vehicles:
+            temp[vehicle.i, vehicle.j] = 5
+
+        plt.matshow(temp)
+        plt.show()
+
     def render_junctions(self, map_to_edit):
+        """
+        Renders junctions on the map to display it on matplotlib image
+        :param map_to_edit: map to edit
+        :return: inplace
+        """
         for junction in self.junctions:
-            map_to_edit[junction.i:junction.i + 2, junction.j:junction.j + 2] = -2 + junction.state
+            map_to_edit[junction.i:junction.i + 2,
+                        junction.j:junction.j + 2] = -2 + junction.state
 
     def animate(self, n=1000):
+        """
+        Animates the map as matplotlib animation
+        :param n: steps
+        """
         fig, ax = plt.subplots()
 
         ims = []
@@ -200,25 +229,46 @@ class GridWorldEnv:
 
 
 class Junction:
+    """
+    Class representing junctions on the map
+    """
     def __init__(self, top_i, top_j, valid_turns, state=0):
+        """
+        :param top_i: top left corner of junction - row
+        :param top_j: top left corner of junction - column
+        :param valid_turns: list of tuples (priority, direction) of valid turns for each junction
+        :param state: current state of the junction (0 - left/right, 1 - up/down)
+        """
         self.i = top_i
         self.j = top_j
-        # 0 - left / right, 1 - up / down
         self.valid_turns = valid_turns
         self.state = state
-        # yellow light
+
+        # Is junction blocked after light change
         self.is_blocked = False
+
+        # Cooldown between light changes
         self.cooldown = 0
 
-    def is_in_junction(self, i, j):
+    def is_in_junction(self, i, j) -> bool:
+        """
+        Checks if given coordinates are in junction
+        :return: bool
+        """
         return self.i <= i <= self.i + 1 and self.j <= j <= self.j + 1
 
     def get_random_turn(self, from_direction):
-        valid_turns = [turn for turn in self.valid_turns if turn[1] != opposite(from_direction)]
+        valid_turns = [turn for turn in self.valid_turns if turn[1]
+                       != opposite(from_direction)]
         total = sum([turn[0] for turn in valid_turns])
         return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0] / total for turn in valid_turns])
 
     def set_state(self, new_state):
+        """
+        Sets new state of the junction if it is possible
+        :param new_state:
+        :return:
+        """
         if self.cooldown > 0:
             self.cooldown -= 1
             return
@@ -245,13 +295,16 @@ class Vehicle:
     def move(self):
         self.find_direction()
 
-        if self.swapped: return True
+        # Already turned left
+        if self.swapped:
+            return True
 
         temp_direction = self.direction.value
 
+        # Is it left turn?
         if self.temp_direction is not None:
             temp_direction = self.direction.value[0] + self.temp_direction.value[0], \
-                             self.direction.value[1] + self.temp_direction.value[1]
+                self.direction.value[1] + self.temp_direction.value[1]
 
         next_i, next_j = self.i + temp_direction[0], self.j + temp_direction[1]
 
@@ -279,9 +332,11 @@ class Vehicle:
         # Want to entry junctions
         if not is_in_junction:
             for junction in self.world.junctions:
-                if not junction.is_in_junction(next_i, next_j): continue
+                if not junction.is_in_junction(next_i, next_j):
+                    continue
 
-                if junction.is_blocked: return False
+                if junction.is_blocked:
+                    return False
 
                 if junction.state == 0:
                     if self.direction not in [Direction.LEFT, Direction.RIGHT]:
@@ -319,19 +374,14 @@ class Vehicle:
         return f"Vehicle({self.i}, {self.j}, {self.direction})"
 
 
-
 if __name__ == '__main__':
     env = GridWorldEnv()
 
     env.animate(500)
+
     # ms = MainScreen(env.map)
     # for i in range(3):
     #     env.step()
     #     env.render()
-    #     # ms.step(env.vehicles, env.junctions)
     #     if i % 10 == 9:
     #         env.change_random_lights()
-
-    # env.map > 0
-    # env.render()
-

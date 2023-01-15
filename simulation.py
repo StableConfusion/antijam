@@ -1,3 +1,8 @@
+'''
+Script runs a pygame simulation of city traffic
+using the baseline model and a trained PPO checkpoint.
+'''
+
 import numpy as np
 import pygame
 
@@ -32,8 +37,9 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
 
     agent_1 = RandomAgent()
-    agent_2 = RandomAgent()
-    # agent_2 = TrainedAgent('ray_results/PPO/PPO_antijam_0db8c_00000_0_2023-01-14_22-18-56/checkpoint_000005')
+    # agent_1 = InteligentAgent()
+    # agent_2 = RandomAgent()
+    agent_2 = TrainedAgent('./checkpoints/3')
 
     buffer_size = 100
     r_buffer_1 = ReplayBuffer(buffer_size)
@@ -66,8 +72,10 @@ if __name__ == '__main__':
             r_buffer_1.add(r_1)
             r_buffer_2.add(r_2)
 
-            town_1.step(env_1.vehicles, env_1.junctions, r_buffer_1.get_mean_reward())
-            town_2.step(env_2.vehicles, env_2.junctions, r_buffer_2.get_mean_reward())
+            town_1.step(env_1.vehicles, env_1.junctions,
+                        r_buffer_1.get_mean_reward())
+            town_2.step(env_2.vehicles, env_2.junctions,
+                        r_buffer_2.get_mean_reward())
 
             town_1.update_state()
             town_2.update_state()
