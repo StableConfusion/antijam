@@ -6,7 +6,7 @@ class Commentator:
     def __init__(self):
 
         self.api_url = "https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6B"
-        self.headers = {"Authorization": "Bearer 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"}
+        self.headers = {"Authorization": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
         self.prompt = "Two sport commentators are commenting a racing game.\n"
         self.turn = 0
         self.available_bad_comments = [
