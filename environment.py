@@ -11,11 +11,11 @@ from matplotlib.animation import FuncAnimation
 from utils import Direction, opposite
 
 
-JUNCTION_COOLDOWN = 5
+JUNCTION_COOLDOWN = 10
 
 
 class GridWorldEnv:
-    def __init__(self, render_mode=None, map_size=42, num_of_vehicles=80):
+    def __init__(self, render_mode=None, map_size=36, num_of_vehicles=100):
         self.map, self.junctions = self.generate_map(map_size, map_size, 3, 3)
 
         n, m = self.map.shape
