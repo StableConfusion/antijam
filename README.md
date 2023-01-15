@@ -1,19 +1,18 @@
-# Env
+# AntiJam Project
 
-## Step
+This is a Reinforcement Learning system that trains
+a traffic light agent to optimally switch based on
+real time traffic observations.
 
-args:
-- `action`: `{"light_{i}": 0 or 1}`
+The optimization goal is the minimization
+of wasted fuel - fuel used while stuck in traffic.
 
-returns:
-- `observation`: `{"light_{i}": observation tensor}`
-- `reward`: `{"light_{i}": mean car speed}`
-- `terminated`: `{"light_{i}": False, "__all__": False}`
-- `info`: `{"light_{i}": {}}`
+Each traffic light sees cars in the entire city,
+other traffic light states and it's own position.
 
-observation tensor NxMx5:
-- map: 1 where road
-- cars: 1 where car
-- this agent: 1 at current light agent position
-- light state A: 1 where lights are in state A
-- light state B: 1 where lights are in state B
+The PPO (Proximal Policy Optimization) agent has
+been trained in such an environment.
+
+Results have been compared with a baseline
+model (switching lights every X ticks).
+The learned PPO agent outperforms the baseline.
