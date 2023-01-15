@@ -25,6 +25,12 @@ Baseline agent on the left, trained PPO on the right.
 
 ![video](docs/demo1.webm)
 
+# Training report
+
+![report](docs/training.png)
+
+Total computational time was 6 h.
+
 # Installation
 
 - install python 3.10 and pytorch
