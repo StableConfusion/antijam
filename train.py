@@ -30,7 +30,7 @@ if __name__ == "__main__":
         .environment('antijam', disable_env_checking=True)
         .framework('torch')
         .resources(num_gpus=1)
-        .rollouts(num_rollout_workers=16, rollout_fragment_length=32, horizon=50)
+        .rollouts(num_rollout_workers=16, rollout_fragment_length=32, horizon=100)
         .training(train_batch_size=512)
         .multi_agent(
             policies=policies,

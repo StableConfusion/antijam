@@ -4,14 +4,9 @@ from ray.rllib.env import MultiAgentEnv, EnvContext
 from environment import GridWorldEnv
 
 
-MAX_STEPS = 50
-
-
 class AntiJamEnv(MultiAgentEnv):
     def __init__(self, config: EnvContext):
         super().__init__()
-
-        self.steps_left = MAX_STEPS
 
         self.env = GridWorldEnv()
 
@@ -33,7 +28,6 @@ class AntiJamEnv(MultiAgentEnv):
 
     def reset(self):
         self.env = GridWorldEnv()
-        self.steps_left = MAX_STEPS
         obs_dict = {}
         for i in range(self.num_lights):
             obs_dict[f"light_{i}"] = self.get_light_observation(i)
@@ -57,16 +51,13 @@ class AntiJamEnv(MultiAgentEnv):
         num_moved = self.env.step()
         reward = num_moved / self.num_cars
 
-        self.steps_left -= 1
-        done = self.steps_left <= 0
-
         for i in range(self.num_lights):
             obs_dict[f"light_{i}"] = self.get_light_observation(i)
             reward_dict[f"light_{i}"] = reward
-            done_dict[f"light_{i}"] = done
+            done_dict[f"light_{i}"] = False
             info_dict[f"light_{i}"] = {}
 
-        done_dict["__all__"] = done
+        done_dict["__all__"] = False
 
         return obs_dict, reward_dict, done_dict, info_dict
 
