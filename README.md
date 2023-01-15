@@ -41,6 +41,8 @@ Total computational time was 6 h.
 With enough RAM, VRAM, CPU cores and a good GPU run:
 - `python train.py`
 
+A pretrained checkpoint is provided in [checkpoints/](checkpoints).
+
 # Simulation
 
 Specify the trained checkpoint path in `simulation.py` and run:
