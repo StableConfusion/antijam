@@ -16,7 +16,7 @@ JUNCTION_COOLDOWN = 5
 
 class GridWorldEnv:
     def __init__(self, render_mode=None, map_size=42, num_of_vehicles=80):
-        self.map, self.junctions = self.generate_map(map_size, map_size, 4, 4)
+        self.map, self.junctions = self.generate_map(map_size, map_size, 3, 3)
 
         n, m = self.map.shape
         self.day = 0
@@ -71,7 +71,7 @@ class GridWorldEnv:
         plt.show()
 
     @staticmethod
-    def generate_map(i: int, j: int, hor_jun: int, ver_jun: int) -> (np.array, np.array):
+    def generate_map(i: int, j: int, hor_jun: int, ver_jun: int) -> tuple[np.ndarray, np.ndarray]:
         new_map = np.zeros((i, j))
         junctions = []
 

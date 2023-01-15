@@ -1,5 +1,6 @@
 numpy<1.24
 tensorflow-probability
 ray[rllib]
-wandb<0.13
+wandb
 pygame
+matplotlib
