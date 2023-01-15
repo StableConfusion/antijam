@@ -17,9 +17,9 @@ JUNCTION_COOLDOWN = 10
 
 
 class GridWorldEnv:
-    def __init__(self, render_mode=None, map_size=30, num_of_vehicles=5):
+    def __init__(self, render_mode=None, map_size=42, num_of_vehicles=80):
         # Generate grid map and its junctions
-        self.map, self.junctions = self.generate_map(map_size, map_size, 1, 1)
+        self.map, self.junctions = self.generate_map(map_size, map_size, 3, 3)
 
         n, m = self.map.shape
         self.day = 0
