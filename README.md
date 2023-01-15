@@ -47,3 +47,42 @@ A pretrained checkpoint is provided in [checkpoints/](checkpoints).
 
 Specify the trained checkpoint path in `simulation.py` and run:
 - `python simulation.py`
+
+# Environment specification
+
+## Step function
+
+The step function takes an action mapping of
+traffic light ids to their requested states.
+
+Each traffic light has a switching frequency limit.
+This is to stop rapid state changes.
+
+It returns the environment observation and reward.
+The environment never terminates by itself.
+
+## Observation
+
+The observation is designed for a convolutional neural network.
+It contains 6 channels, each NxM (size of grid):
+- the map (1 where road)
+- car positions (1 where car)
+- this agent position (1 where this agent junction)
+- 1 where lights are in state 0
+- 1 where lights are in state 1
+- all available junctions
+
+To speed up training, the map was removed from
+the observation and the CNN was replaced with
+a simple FCN.
+
+# Reward
+
+The reward in each step is calculated
+as (number of cars that moved / total cars).
+
+The reward is summed over all agents and environment
+steps.
+
+For simulation evaluation, an average of
+100 step rewards is taken.
