@@ -21,6 +21,8 @@ The learned PPO agent outperforms the baseline.
 
 Baseline agent on the left, trained PPO on the right.
 
+The reward is fuel use efficiency (100% means no fuel was wasted while not moving).
+
 ![image](docs/im1.png)
 
 ![video](docs/demo1.webm)
