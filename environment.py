@@ -126,7 +126,8 @@ class GridWorldEnv:
                 if not ver_loc == j - 3:
                     right_prio = new_map[hor_loc, ver_loc + 2]
 
-                negative = [up_prio, down_prio, left_prio, right_prio].count(-1)
+                negative = [up_prio, down_prio,
+                            left_prio, right_prio].count(-1)
                 if negative == 2:
                     continue
 
@@ -165,20 +166,22 @@ class GridWorldEnv:
             elif road_tiles[i][0] == self.map.shape[0] - 3:
                 direction = Direction.LEFT
             elif self.map[
-                road_tiles[i][0] + 1, road_tiles[i][1] + 1] == 0 or self.map[
-                road_tiles[i][0] - 1, road_tiles[i][1] + 1] == 0:
+                    road_tiles[i][0] + 1, road_tiles[i][1] + 1] == 0 or self.map[
+                    road_tiles[i][0] - 1, road_tiles[i][1] + 1] == 0:
                 direction = Direction.UP
             elif self.map[
-                road_tiles[i][0] - 1, road_tiles[i][1] - 1] == 0 or self.map[
-                road_tiles[i][0] + 1, road_tiles[i][1] - 1] == 0:
+                    road_tiles[i][0] - 1, road_tiles[i][1] - 1] == 0 or self.map[
+                    road_tiles[i][0] + 1, road_tiles[i][1] - 1] == 0:
                 direction = Direction.DOWN
             assert direction is not None
-            veh_list.append(Vehicle(self, road_tiles[i][0], road_tiles[i][1], direction))
+            veh_list.append(
+                Vehicle(self, road_tiles[i][0], road_tiles[i][1], direction))
         return veh_list
 
     def render_junctions(self, map_to_edit):
         for junction in self.junctions:
-            map_to_edit[junction.i:junction.i + 2, junction.j:junction.j + 2] = -2 + junction.state
+            map_to_edit[junction.i:junction.i + 2,
+                        junction.j:junction.j + 2] = -2 + junction.state
 
     def animate(self, n=1000):
         fig, ax = plt.subplots()
@@ -218,7 +221,8 @@ class Junction:
         return self.i <= i <= self.i + 1 and self.j <= j <= self.j + 1
 
     def get_random_turn(self, from_direction):
-        valid_turns = [turn for turn in self.valid_turns if turn[1] != opposite(from_direction)]
+        valid_turns = [turn for turn in self.valid_turns if turn[1]
+                       != opposite(from_direction)]
         total = sum([turn[0] for turn in valid_turns])
         return np.random.choice(list(map(lambda x: x[1], valid_turns)), p=[turn[0] / total for turn in valid_turns])
 
@@ -249,13 +253,14 @@ class Vehicle:
     def move(self):
         self.find_direction()
 
-        if self.swapped: return True
+        if self.swapped:
+            return True
 
         temp_direction = self.direction.value
 
         if self.temp_direction is not None:
             temp_direction = self.direction.value[0] + self.temp_direction.value[0], \
-                             self.direction.value[1] + self.temp_direction.value[1]
+                self.direction.value[1] + self.temp_direction.value[1]
 
         next_i, next_j = self.i + temp_direction[0], self.j + temp_direction[1]
 
@@ -283,9 +288,11 @@ class Vehicle:
         # Want to entry junctions
         if not is_in_junction:
             for junction in self.world.junctions:
-                if not junction.is_in_junction(next_i, next_j): continue
+                if not junction.is_in_junction(next_i, next_j):
+                    continue
 
-                if junction.is_blocked: return False
+                if junction.is_blocked:
+                    return False
 
                 if junction.state == 0:
                     if self.direction not in [Direction.LEFT, Direction.RIGHT]:
@@ -323,7 +330,6 @@ class Vehicle:
         return f"Vehicle({self.i}, {self.j}, {self.direction})"
 
 
-
 if __name__ == '__main__':
     env = GridWorldEnv()
 
@@ -338,4 +344,3 @@ if __name__ == '__main__':
 
     # env.map > 0
     # env.render()
-

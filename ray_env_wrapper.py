@@ -14,7 +14,8 @@ class AntiJamEnv(MultiAgentEnv):
 
         self.env = GridWorldEnv()
 
-        self._agent_ids = [f"light_{i}" for i in range(len(self.env.junctions))]
+        self._agent_ids = [
+            f"light_{i}" for i in range(len(self.env.junctions))]
 
         self.num_lights: int = len(self.env.junctions)
         self.num_cars: int = len(self.env.vehicles)
@@ -74,30 +75,31 @@ class AntiJamEnv(MultiAgentEnv):
         # - position of traffic lights in state 1
         # - optionally a map (was removed to speed up training)
 
-        obs = np.zeros((self.grid_size[0], self.grid_size[1], 6), dtype=np.uint8)
-        
+        obs = np.zeros(
+            (self.grid_size[0], self.grid_size[1], 6), dtype=np.uint8)
+
         # obs[:, :, 0] = np.where(self.env.map == 0, 0, 1)
-        
+
         for junction in self.env.junctions:
             if junction.cooldown == 0:
-                obs[junction.i : junction.i + 2,
-                    junction.j : junction.j + 2, 1] = 1
+                obs[junction.i: junction.i + 2,
+                    junction.j: junction.j + 2, 1] = 1
 
             if junction.state == 0:
-                obs[junction.i : junction.i + 2,
-                    junction.j : junction.j + 2, 4] = 1
+                obs[junction.i: junction.i + 2,
+                    junction.j: junction.j + 2, 4] = 1
 
             elif junction.state == 1:
-                obs[junction.i : junction.i + 2,
-                    junction.j : junction.j + 2, 5] = 1
+                obs[junction.i: junction.i + 2,
+                    junction.j: junction.j + 2, 5] = 1
 
         for vehicle in self.env.vehicles:
             obs[vehicle.i, vehicle.j, 2] = 1
 
         this_junction = self.env.junctions[light_id]
 
-        obs[this_junction.i : this_junction.i + 2,
-            this_junction.j : this_junction.j + 2, 3] = 1
+        obs[this_junction.i: this_junction.i + 2,
+            this_junction.j: this_junction.j + 2, 3] = 1
 
         return np.stack((
             # obs[:, :, 0],

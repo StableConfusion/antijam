@@ -24,7 +24,7 @@ class TrainedAgent:
             'policy_{}'.format(i): gen_policy(i) for i in range(1)
         }
         policy_ids = list(policies.keys())
-        
+
         config = (
             PPOConfig()
             .environment('antijam', disable_env_checking=True)

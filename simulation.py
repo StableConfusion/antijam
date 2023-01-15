@@ -72,8 +72,10 @@ if __name__ == '__main__':
             r_buffer_1.add(r_1)
             r_buffer_2.add(r_2)
 
-            town_1.step(env_1.vehicles, env_1.junctions, r_buffer_1.get_mean_reward())
-            town_2.step(env_2.vehicles, env_2.junctions, r_buffer_2.get_mean_reward())
+            town_1.step(env_1.vehicles, env_1.junctions,
+                        r_buffer_1.get_mean_reward())
+            town_2.step(env_2.vehicles, env_2.junctions,
+                        r_buffer_2.get_mean_reward())
 
             town_1.update_state()
             town_2.update_state()
