@@ -19,4 +19,23 @@ The learned PPO agent outperforms the baseline.
 
 # Demo
 
+Baseline agent on the left, trained PPO on the right.
+
+![image](docs/im1.png)
+
 ![video](docs/demo1.webm)
+
+# Installation
+
+- install python 3.10 and pytorch
+- `pip install -r requirements.txt`
+
+# Training
+
+With enough RAM, VRAM, CPU cores and a good GPU run:
+- `python train.py`
+
+# Simulation
+
+Specify the trained checkpoint path in `simulation.py` and run:
+- `python simulation.py`

@@ -1,3 +1,7 @@
+'''
+An agent which loads a trained PPO checkpoint.
+'''
+
 import torch
 from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.algorithms.algorithm import Algorithm

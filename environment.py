@@ -1,3 +1,7 @@
+'''
+The main city simulation implementation.
+'''
+
 from __future__ import annotations
 import numpy as np
 from copy import deepcopy

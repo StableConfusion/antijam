@@ -1,3 +1,7 @@
+'''
+The main training script.
+'''
+
 import pprint
 
 import ray

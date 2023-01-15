@@ -1,3 +1,7 @@
+'''
+A baseline agent.
+'''
+
 from random import randint
 
 from ray.rllib.algorithms.algorithm import Algorithm

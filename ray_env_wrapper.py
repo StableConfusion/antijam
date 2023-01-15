@@ -1,3 +1,7 @@
+'''
+Implements action/observation spaces and rewards for the environment.
+'''
+
 import numpy as np
 from gym.spaces import Discrete, Box
 from ray.rllib.env import MultiAgentEnv, EnvContext
@@ -62,13 +66,14 @@ class AntiJamEnv(MultiAgentEnv):
         return obs_dict, reward_dict, done_dict, info_dict
 
     def get_light_observation(self, light_id):
-        # return NxMx6 tensor
-        # 0: map
-        # 1: junctions
-        # 2: cars
-        # 3: this light position
-        # 4: lights which are 0
-        # 5: lights which are 1
+        # observation contains:
+        # - available junctions
+        # - car positions
+        # - position of this agent's junction
+        # - position of traffic lights in state 0
+        # - position of traffic lights in state 1
+        # - optionally a map (was removed to speed up training)
+
         obs = np.zeros((self.grid_size[0], self.grid_size[1], 6), dtype=np.uint8)
         
         # obs[:, :, 0] = np.where(self.env.map == 0, 0, 1)
